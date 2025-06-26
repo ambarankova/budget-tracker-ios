@@ -6,13 +6,31 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		B5B6B9572DC2928900208195 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = B5B6B9552DC2928900208195 /* Localizable.strings */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		B5B6B8882DC28B3900208195 /* Budget.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Budget.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B5B6B9562DC2928900208195 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B5B6B9582DC2933100208195 /* Exceptions for "Budget" folder in "Budget" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B5B6B8872DC28B3900208195 /* Budget */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B5B6B88A2DC28B3900208195 /* Budget */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B5B6B9582DC2933100208195 /* Exceptions for "Budget" folder in "Budget" target */,
+			);
 			path = Budget;
 			sourceTree = "<group>";
 		};
@@ -32,6 +50,7 @@
 		B5B6B87F2DC28B3900208195 = {
 			isa = PBXGroup;
 			children = (
+				B5B6B9552DC2928900208195 /* Localizable.strings */,
 				B5B6B88A2DC28B3900208195 /* Budget */,
 				B5B6B8892DC28B3900208195 /* Products */,
 			);
@@ -109,6 +128,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5B6B9572DC2928900208195 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -123,6 +143,17 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		B5B6B9552DC2928900208195 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B5B6B9562DC2928900208195 /* en */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		B5B6B8942DC28B3A00208195 /* Debug */ = {
