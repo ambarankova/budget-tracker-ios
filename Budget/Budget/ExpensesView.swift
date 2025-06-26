@@ -3,7 +3,7 @@ import SwiftUI
 struct ExpensesView: View {
     var delta: String {
         let number = 1
-        let sign = number >= 0 ? "+" : "-"
+        let sign = number >= 0 ? " +" : " -"
         return sign + String(abs(number))
     }
     
@@ -39,6 +39,8 @@ struct ExpensesView: View {
                 Spacer()
             }
             .padding(.horizontal)
+            
+            TotalTableView()
             
             Spacer()
         }

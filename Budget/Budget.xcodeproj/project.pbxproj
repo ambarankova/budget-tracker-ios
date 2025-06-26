@@ -17,6 +17,8 @@
 		744E72701F8DA608EFF663DC /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 776385C73C2A4579594EC064 /* Preview Assets.xcassets */; };
 		79FBF68B95865F657B850327 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 17EC2B1FF8E266C2F6B5D3F2 /* Images.xcassets */; };
 		ABD07299F8E67836BBF7A4AD /* BudgetApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F14E9FA24F699B7AEA4DF23 /* BudgetApp.swift */; };
+		B507549D2E0D96310051A231 /* ExpenseCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B507549C2E0D96310051A231 /* ExpenseCategory.swift */; };
+		B507549F2E0D98B90051A231 /* GridExpenseTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B507549E2E0D98B90051A231 /* GridExpenseTableView.swift */; };
 		D0EE90492578400CFDC389CE /* Font+Ex.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18A1EBF6620402DF6EF1347 /* Font+Ex.swift */; };
 		DC3A52087CB8F2A84A5D8433 /* Publics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A0C500C21B751FE56A33795 /* Publics.swift */; };
 		E4FC6A48763087FC11CBA4C6 /* Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 380E22400432A9740D548D5F /* Assets.swift */; };
@@ -41,6 +43,8 @@
 		7C1F0D64B81A1509B0BD59F3 /* Budget.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Budget.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		872FA9316EEA50FDFFEDF453 /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
 		8DDEF2502BD95AAA93F9D1EA /* PlayfairDisplay-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PlayfairDisplay-SemiBold.ttf"; sourceTree = "<group>"; };
+		B507549C2E0D96310051A231 /* ExpenseCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseCategory.swift; sourceTree = "<group>"; };
+		B507549E2E0D98B90051A231 /* GridExpenseTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridExpenseTableView.swift; sourceTree = "<group>"; };
 		EC507A642E5CC6CCF5665C02 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		F18A1EBF6620402DF6EF1347 /* Font+Ex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Font+Ex.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -69,6 +73,8 @@
 				3F14E9FA24F699B7AEA4DF23 /* BudgetApp.swift */,
 				EC507A642E5CC6CCF5665C02 /* ContentView.swift */,
 				173DA58FC35C9EE6D62AFF2E /* ExpensesView.swift */,
+				B50754A02E0D98D40051A231 /* UIComponents */,
+				B507549C2E0D96310051A231 /* ExpenseCategory.swift */,
 				0CC701E37BD3916F748041B4 /* Info.plist */,
 				80EFB919D3E8764BA816BA96 /* Generated */,
 				7D38643BDD1847E9B5EAE245 /* Preview Content */,
@@ -92,6 +98,15 @@
 				78C7F33A815EE1ABEA83113B /* Strings.swift */,
 			);
 			path = Generated;
+			sourceTree = "<group>";
+		};
+		B50754A02E0D98D40051A231 /* UIComponents */ = {
+			isa = PBXGroup;
+			children = (
+				B507549E2E0D98B90051A231 /* GridExpenseTableView.swift */,
+				0E1DEED692B44EA327DB9EEF /* SettingsButton.swift */,
+			);
+			path = UIComponents;
 			sourceTree = "<group>";
 		};
 		B75EF091D92B7DA6E0A5F25E = {
@@ -119,7 +134,6 @@
 				17EC2B1FF8E266C2F6B5D3F2 /* Images.xcassets */,
 				D0788F4468FB18FE4ACEE329 /* Localizable.strings */,
 				3A0C500C21B751FE56A33795 /* Publics.swift */,
-				0E1DEED692B44EA327DB9EEF /* SettingsButton.swift */,
 				1F453B94259AB27D0A64985E /* Extentions */,
 				C98A936B1A9B78B6AA113DBB /* Fonts */,
 			);
@@ -224,8 +238,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				E4FC6A48763087FC11CBA4C6 /* Assets.swift in Sources */,
+				B507549D2E0D96310051A231 /* ExpenseCategory.swift in Sources */,
 				ABD07299F8E67836BBF7A4AD /* BudgetApp.swift in Sources */,
 				4EC4A1B46BE901B3C56A0EE1 /* ContentView.swift in Sources */,
+				B507549F2E0D98B90051A231 /* GridExpenseTableView.swift in Sources */,
 				4D228358881B0CA3D18C33DE /* ExpensesView.swift in Sources */,
 				D0EE90492578400CFDC389CE /* Font+Ex.swift in Sources */,
 				DC3A52087CB8F2A84A5D8433 /* Publics.swift in Sources */,
