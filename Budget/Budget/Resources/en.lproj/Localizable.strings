@@ -1,3 +1,13 @@
-// MARK: - ExpensesView
+// MARK: - General
 
-"expenses.delta" = "Delta";
+"delta" = "Delta";
+"category" = "Category";
+"plan" = "Plan";
+"fact" = "Fact";
+"expense" = "Expense";
+"income" = "Income";
+"analytics" = "Analitycs";
+"goals" = "Goals";
+"total" = "Total";
+"date" = "Date";
+"sum" = "Sum";
