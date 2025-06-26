@@ -1,0 +1,20 @@
+input_dir: Budget/
+
+output_dir: Budget/Generated/
+
+xcassets:
+    inputs:
+     - Resources/Images.xcassets
+     - Resources/Colors.xcassets
+
+    outputs:
+     - templateName: swift5
+       params:
+         forceProvidesNamespaces: true
+       output: Assets.swift
+
+strings:
+  inputs: Resources/en.lproj
+  outputs:
+    templateName: structured-swift5
+    output: Strings.swift

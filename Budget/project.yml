@@ -1,0 +1,63 @@
+name: Budget
+options:
+  bundleIdPrefix: Budget
+  deploymentTarget:
+    iOS: '16.0'
+#packages:
+#  Firebase:
+#    url: https://github.com/firebase/firebase-ios-sdk.git
+#    from: 11.14.0
+settings:
+  base:
+    CODE_SIGN_IDENTITY: "iPhone Developer"
+    CODE_SIGN_STYLE: "Automatic"
+    MARKETING_VERSION: 1.0.0
+    CURRENT_PROJECT_VERSION: 1
+    PRODUCT_NAME: "Budget"
+targets:
+  OutOfPorn:
+    type: application
+    platform: iOS
+    supportedDestinations: [iOS]
+    sources:
+      - path: Budget
+        excludes:
+          - "**/*.test.swift"
+    info:
+      path: Budget/Info.plist
+      properties:
+        CFBundleDisplayName: "Budget"
+        NSUserTrackingUsageDescription: "We use this to ensure that our app works for you and others that download it by reviewing usage logs."
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIDeviceFamily:
+          - 1  # iPhone
+#        UILaunchStoryboardName: LaunchScreen
+        UIBackgroundModes:
+          - audio
+#    dependencies:
+#      - package: Firebase
+#        product: FirebaseAnalytics
+    resources:
+      - path: Budget/Resources
+      - path: Budget/Generated
+    settings:
+      base:
+        INFOPLIST_FILE: Budget/Info.plist
+        CODE_SIGN_IDENTITY: "iPhone Developer"
+        CODE_SIGN_STYLE: "Automatic"
+        DEVELOPMENT_TEAM: G56Y45S8LJ
+        MARKETING_VERSION: 1.0.0
+        CURRENT_PROJECT_VERSION: 1
+        PRODUCT_BUNDLE_IDENTIFIER: com.Budget.Consultant
+        CODE_SIGN_ENTITLEMENTS: Budget/Budget.entitlements
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
+    prebuildScripts:
+      - name: Generate SwiftGen Files
+        script: |
+          if which swiftgen >/dev/null; then
+            swiftgen config run --config swiftgen.yml
+          else
+            echo "warning: SwiftGen not installed, download from https://github.com/SwiftGen/SwiftGen"
+          fi
+    postbuildScripts: []
