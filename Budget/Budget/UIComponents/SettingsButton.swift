@@ -7,11 +7,8 @@ struct SettingsButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: "gearshape")
-                .resizable()
-                .scaledToFit()
-                .fontWeight(.bold)
-                .frame(width: 24)
-                .foregroundColor(Color(.green))
+                .font(.system(size: 26, weight: .regular))
+                .foregroundStyle(Color(.green))
         }
         .padding(.horizontal)
     }
