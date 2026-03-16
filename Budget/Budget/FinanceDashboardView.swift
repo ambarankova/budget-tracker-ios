@@ -1,11 +1,8 @@
 import SwiftUI
 
-struct ExpensesView: View {
-    @State private var categories: [ExpenseCategory] = [
-        .init(category: "Еда", plan: 0, fact: 0),
-        .init(category: "Транспорт", plan: 0, fact: 0),
-        .init(category: "Красота", plan: 0, fact: 0)
-    ]
+struct FinanceDashboardView: View {
+    let mode: FinanceMode
+    @State private var categories: [ExpenseCategory]
     @State private var allTransactions: [ExpenseTransaction] = []
     @State private var selectedPage = 0
     @State private var isAddTransactionPresented = false
@@ -19,9 +16,8 @@ struct ExpensesView: View {
     @State private var amountEditingTransaction: ExpenseTransaction?
     @State private var amountEditingDraft = ""
     @FocusState private var isAmountEditingFocused: Bool
-
-    private let monthlyIncome = 0
-    private let transactionsStorageKey = "budget.expense.transactions.v1"
+    @State private var planEditingCategoryName: String?
+    @State private var planEditingDraft = ""
 
     private var totalPlan: Int {
         categoriesForCurrentMonth.reduce(0) { $0 + $1.plan }
@@ -32,8 +28,7 @@ struct ExpensesView: View {
     }
 
     private var deltaText: String {
-        let delta = monthlyIncome - totalFact
-        return formatAmount(delta, withSign: true)
+        formatAmount(globalDelta, withSign: true)
     }
 
     private var currentMonthTransactions: [ExpenseTransaction] {
@@ -64,6 +59,23 @@ struct ExpensesView: View {
         categoryEditingTransaction != nil || dateEditingTransaction != nil || amountEditingTransaction != nil
     }
 
+    private var isPlanEditorVisible: Bool {
+        planEditingCategoryName != nil
+    }
+
+    private var globalDelta: Int {
+        totalFactForCurrentMonth(mode: .income) - totalFactForCurrentMonth(mode: .expense)
+    }
+
+    private var transactionsStorageKey: String {
+        mode.storageKey
+    }
+
+    init(mode: FinanceMode = .expense) {
+        self.mode = mode
+        _categories = State(initialValue: mode.defaultCategories)
+    }
+
     var body: some View {
         ZStack(alignment: .bottom) {
             Color(.beige)
@@ -92,7 +104,7 @@ struct ExpensesView: View {
                 .padding(.horizontal, 20)
 
                 HStack {
-                    Text("Расходы")
+                    Text(mode.screenTitle)
                         .font(.playfairDisplay(42, weight: .semibold))
                         .foregroundStyle(Color(.green))
 
@@ -105,7 +117,18 @@ struct ExpensesView: View {
                     TotalTableView(
                         categories: categoriesForCurrentMonth,
                         totalPlan: totalPlan,
-                        totalFact: totalFact
+                        totalFact: totalFact,
+                        isRedWhenFactLessThanPlan: mode == .income,
+                        onPlanTap: { categoryName in
+                            withAnimation(.easeInOut(duration: 0.22)) {
+                                planEditingCategoryName = categoryName
+                                if let category = categories.first(where: { $0.category == categoryName }) {
+                                    planEditingDraft = String(category.plan)
+                                } else {
+                                    planEditingDraft = ""
+                                }
+                            }
+                        }
                     )
                     .tag(0)
 
@@ -165,21 +188,24 @@ struct ExpensesView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 4)
-
-                BottomMenuBar()
             }
 
-            if isTransactionEditorVisible {
+            if isTransactionEditorVisible || isPlanEditorVisible {
                 Color.black.opacity(0.2)
                     .ignoresSafeArea()
                     .onTapGesture {
                         closeTransactionEditors()
+                        closePlanEditor()
                     }
                     .transition(.opacity)
                     .zIndex(1)
             }
 
             transactionEditingOverlay
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                .zIndex(2)
+
+            planEditingOverlay
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 .zIndex(2)
 
@@ -191,15 +217,72 @@ struct ExpensesView: View {
         }
         .onAppear {
             loadTransactions()
+            loadCategoryPlans()
         }
     }
 }
 
 #Preview {
-    ExpensesView()
+    FinanceDashboardView()
 }
 
-private extension ExpensesView {
+private extension FinanceDashboardView {
+    @ViewBuilder
+    var planEditingOverlay: some View {
+        if let categoryName = planEditingCategoryName {
+            VStack(spacing: 12) {
+                Text("План: \(categoryName)")
+                    .font(.playfairDisplay(24, weight: .semibold))
+                    .foregroundStyle(.black)
+
+                TextField(
+                    "0",
+                    text: Binding(
+                        get: { formattedAmountInput(planEditingDraft) },
+                        set: { planEditingDraft = normalizedAmountInput($0) }
+                    )
+                )
+                .keyboardType(.numberPad)
+                .font(.playfairDisplay(36, weight: .semibold))
+                .foregroundStyle(.black)
+                .padding(.horizontal, 12)
+                .frame(height: 56)
+                .background(.white)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                HStack(spacing: 12) {
+                    Button("Отмена") {
+                        closePlanEditor()
+                    }
+                    .font(.playfairDisplay(20, weight: .semibold))
+                    .foregroundStyle(.black)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 56)
+                    .background(Color(.systemGray5))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                    Button("ОК") {
+                        let cleaned = planEditingDraft.replacingOccurrences(of: " ", with: "")
+                        guard let plan = Int(cleaned), plan >= 0 else { return }
+                        updateCategoryPlan(categoryName: categoryName, plan: plan)
+                        closePlanEditor()
+                    }
+                    .font(.playfairDisplay(20, weight: .semibold))
+                    .foregroundStyle(Color(.green))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 56)
+                    .background(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+            }
+            .padding(16)
+            .background(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .padding(.horizontal, 20)
+            .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
+    }
+
     @ViewBuilder
     var transactionEditingOverlay: some View {
         if let editing = dateEditingTransaction {
@@ -559,6 +642,13 @@ private extension ExpensesView {
         isAmountEditingFocused = false
     }
 
+    func closePlanEditor() {
+        withAnimation(.easeInOut(duration: 0.22)) {
+            planEditingCategoryName = nil
+        }
+        planEditingDraft = ""
+    }
+
     func saveTransactions() {
         guard let data = try? JSONEncoder().encode(allTransactions) else { return }
         UserDefaults.standard.set(data, forKey: transactionsStorageKey)
@@ -568,6 +658,25 @@ private extension ExpensesView {
         guard let data = UserDefaults.standard.data(forKey: transactionsStorageKey) else { return }
         guard let transactions = try? JSONDecoder().decode([ExpenseTransaction].self, from: data) else { return }
         allTransactions = transactions
+    }
+
+    func loadTransactions(for storageKey: String) -> [ExpenseTransaction] {
+        guard let data = UserDefaults.standard.data(forKey: storageKey) else { return [] }
+        guard let transactions = try? JSONDecoder().decode([ExpenseTransaction].self, from: data) else { return [] }
+        return transactions
+    }
+
+    func totalFactForCurrentMonth(mode: FinanceMode) -> Int {
+        let transactions = mode == self.mode ? allTransactions : loadTransactions(for: mode.storageKey)
+        let calendar = Calendar.current
+        let now = Date()
+
+        return transactions
+            .filter {
+                calendar.isDate($0.date, equalTo: now, toGranularity: .month) &&
+                calendar.isDate($0.date, equalTo: now, toGranularity: .year)
+            }
+            .reduce(0) { $0 + $1.amount }
     }
 
     func deleteTransaction(_ id: UUID) {
@@ -585,6 +694,30 @@ private extension ExpensesView {
             currency: allTransactions[index].currency
         )
         saveTransactions()
+    }
+
+    func updateCategoryPlan(categoryName: String, plan: Int) {
+        guard let index = categories.firstIndex(where: { $0.category == categoryName }) else { return }
+        categories[index].plan = plan
+        saveCategoryPlans()
+    }
+
+    func saveCategoryPlans() {
+        let planByCategory = Dictionary(uniqueKeysWithValues: categories.map { ($0.category, $0.plan) })
+        UserDefaults.standard.set(planByCategory, forKey: mode.planStorageKey)
+    }
+
+    func loadCategoryPlans() {
+        guard let planByCategory = UserDefaults.standard.dictionary(forKey: mode.planStorageKey) as? [String: Int] else {
+            return
+        }
+        categories = categories.map { category in
+            var updated = category
+            if let storedPlan = planByCategory[category.category] {
+                updated.plan = storedPlan
+            }
+            return updated
+        }
     }
 
     func fieldButtonRow(value: String, action: @escaping () -> Void) -> some View {
@@ -755,30 +888,45 @@ private struct TransactionsMonthTableView: View {
     }
 }
 
-private struct BottomMenuBar: View {
-    var body: some View {
-        HStack(spacing: 6) {
-            menuItem(symbol: "arrow.up", title: "Доход", isSelected: false)
-            menuItem(symbol: "creditcard", title: "Расход", isSelected: true)
-            menuItem(symbol: "chart.bar.fill", title: "Аналитика", isSelected: false)
-            menuItem(symbol: "checkmark.rectangle.stack", title: "Цели", isSelected: false)
+enum FinanceMode {
+    case expense
+    case income
+
+    var screenTitle: String {
+        switch self {
+        case .expense: "Расходы"
+        case .income: "Доходы"
         }
-        .padding(.top, 10)
-        .padding(.bottom, 6)
-        .background(.white)
     }
 
-    private func menuItem(symbol: String, title: String, isSelected: Bool) -> some View {
-        VStack(spacing: 6) {
-            Image(systemName: symbol)
-                .font(.system(size: 30))
-                .foregroundStyle(isSelected ? Color(.green) : Color(.gray))
-
-            Text(title)
-                .font(.playfairDisplay(18))
-                .foregroundStyle(isSelected ? .black : Color(.gray))
-                .lineLimit(1)
+    var storageKey: String {
+        switch self {
+        case .expense: "budget.expense.transactions.v1"
+        case .income: "budget.income.transactions.v1"
         }
-        .frame(maxWidth: .infinity)
+    }
+
+    var planStorageKey: String {
+        switch self {
+        case .expense: "budget.expense.plan.v1"
+        case .income: "budget.income.plan.v1"
+        }
+    }
+
+    var defaultCategories: [ExpenseCategory] {
+        switch self {
+        case .expense:
+            return [
+                .init(category: "Еда", plan: 0, fact: 0),
+                .init(category: "Транспорт", plan: 0, fact: 0),
+                .init(category: "Красота", plan: 0, fact: 0)
+            ]
+        case .income:
+            return [
+                .init(category: "Зарплата", plan: 0, fact: 0),
+                .init(category: "Аренда", plan: 0, fact: 0),
+                .init(category: "Крипта", plan: 0, fact: 0)
+            ]
+        }
     }
 }

@@ -4,6 +4,8 @@ struct TotalTableView: View {
     let categories: [ExpenseCategory]
     let totalPlan: Int
     let totalFact: Int
+    let isRedWhenFactLessThanPlan: Bool
+    var onPlanTap: (String) -> Void
 
     var body: some View {
         VStack(spacing: 0) {
@@ -70,11 +72,17 @@ private extension TotalTableView {
                 .lineLimit(1)
                 .font(.playfairDisplay(20, weight: isTotal ? .bold : .regular))
                 .frame(width: 110, alignment: .leading)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    if !isTotal {
+                        onPlanTap(title)
+                    }
+                }
 
             Text(formatAmount(fact))
                 .lineLimit(1)
                 .font(.playfairDisplay(20, weight: isTotal ? .bold : .regular))
-                .foregroundStyle(fact > plan ? Color(.red) : .primary)
+                .foregroundStyle(factColor(plan: plan, fact: fact))
                 .frame(width: 110, alignment: .leading)
         }
     }
@@ -87,5 +95,12 @@ private extension TotalTableView {
 
         let number = NSNumber(value: value)
         return (formatter.string(from: number) ?? "\(value)") + " ₽"
+    }
+
+    func factColor(plan: Int, fact: Int) -> Color {
+        if isRedWhenFactLessThanPlan {
+            return fact < plan ? Color(.red) : .primary
+        }
+        return fact > plan ? Color(.red) : .primary
     }
 }
