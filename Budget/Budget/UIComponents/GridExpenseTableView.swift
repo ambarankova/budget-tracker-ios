@@ -31,8 +31,7 @@ struct TotalTableView: View {
                     }
                 }
             }
-
-            Spacer(minLength: 10)
+            .frame(maxHeight: .infinity, alignment: .top)
 
             row(title: "Итого", plan: totalPlan, fact: totalFact, isTotal: true)
                 .padding(.horizontal, 20)
