@@ -2,6 +2,7 @@ import SwiftUI
 
 struct FinanceDashboardView: View {
     let mode: FinanceMode
+    @Binding var isOverlayPresented: Bool
     @State private var categories: [ExpenseCategory]
     @State private var allTransactions: [ExpenseTransaction] = []
     @State private var selectedPage = 0
@@ -73,6 +74,13 @@ struct FinanceDashboardView: View {
 
     init(mode: FinanceMode = .expense) {
         self.mode = mode
+        _isOverlayPresented = .constant(false)
+        _categories = State(initialValue: mode.defaultCategories)
+    }
+
+    init(mode: FinanceMode = .expense, isOverlayPresented: Binding<Bool>) {
+        self.mode = mode
+        _isOverlayPresented = isOverlayPresented
         _categories = State(initialValue: mode.defaultCategories)
     }
 
@@ -218,6 +226,25 @@ struct FinanceDashboardView: View {
         .onAppear {
             loadTransactions()
             loadCategoryPlans()
+            syncOverlayState()
+        }
+        .onChange(of: isAddTransactionPresented) { _ in
+            syncOverlayState()
+        }
+        .onChange(of: categoryEditingTransaction != nil) { _ in
+            syncOverlayState()
+        }
+        .onChange(of: dateEditingTransaction != nil) { _ in
+            syncOverlayState()
+        }
+        .onChange(of: amountEditingTransaction != nil) { _ in
+            syncOverlayState()
+        }
+        .onChange(of: planEditingCategoryName != nil) { _ in
+            syncOverlayState()
+        }
+        .onDisappear {
+            isOverlayPresented = false
         }
     }
 }
@@ -640,6 +667,7 @@ private extension FinanceDashboardView {
         }
         amountEditingDraft = ""
         isAmountEditingFocused = false
+        syncOverlayState()
     }
 
     func closePlanEditor() {
@@ -647,6 +675,11 @@ private extension FinanceDashboardView {
             planEditingCategoryName = nil
         }
         planEditingDraft = ""
+        syncOverlayState()
+    }
+
+    func syncOverlayState() {
+        isOverlayPresented = isAddTransactionPresented || isTransactionEditorVisible || isPlanEditorVisible
     }
 
     func saveTransactions() {
