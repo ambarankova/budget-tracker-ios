@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		0EE579919F75B5E6FDD1EEB3 /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 872FA9316EEA50FDFFEDF453 /* Colors.xcassets */; };
+		AA1111111111111111111111 /* AnalyticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3333333333333333333333 /* AnalyticsView.swift */; };
+		AA2222222222222222222222 /* GoalsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA4444444444444444444444 /* GoalsView.swift */; };
 		3D5D0C381EE6D85700D96A69 /* PlayfairDisplay-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3FE7695AE8B2ED3AA972F770 /* PlayfairDisplay-Regular.ttf */; };
 		4C6516920C6F02B093AE0EE3 /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78C7F33A815EE1ABEA83113B /* Strings.swift */; };
 		4D228358881B0CA3D18C33DE /* FinanceDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 173DA58FC35C9EE6D62AFF2E /* FinanceDashboardView.swift */; };
@@ -30,6 +32,8 @@
 		0CC701E37BD3916F748041B4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		0E1DEED692B44EA327DB9EEF /* SettingsButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsButton.swift; sourceTree = "<group>"; };
 		173DA58FC35C9EE6D62AFF2E /* FinanceDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinanceDashboardView.swift; sourceTree = "<group>"; };
+		AA3333333333333333333333 /* AnalyticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsView.swift; sourceTree = "<group>"; };
+		AA4444444444444444444444 /* GoalsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsView.swift; sourceTree = "<group>"; };
 		17EC2B1FF8E266C2F6B5D3F2 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		2782F11CA96D80ADA87EDA5C /* Budget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Budget.entitlements; sourceTree = "<group>"; };
 		380E22400432A9740D548D5F /* Assets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assets.swift; sourceTree = "<group>"; };
@@ -73,6 +77,8 @@
 				3F14E9FA24F699B7AEA4DF23 /* BudgetApp.swift */,
 				EC507A642E5CC6CCF5665C02 /* ContentView.swift */,
 				173DA58FC35C9EE6D62AFF2E /* FinanceDashboardView.swift */,
+				AA3333333333333333333333 /* AnalyticsView.swift */,
+				AA4444444444444444444444 /* GoalsView.swift */,
 				B50754A02E0D98D40051A231 /* UIComponents */,
 				B507549C2E0D96310051A231 /* ExpenseCategory.swift */,
 				0CC701E37BD3916F748041B4 /* Info.plist */,
@@ -237,6 +243,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA1111111111111111111111 /* AnalyticsView.swift in Sources */,
+				AA2222222222222222222222 /* GoalsView.swift in Sources */,
 				E4FC6A48763087FC11CBA4C6 /* Assets.swift in Sources */,
 				B507549D2E0D96310051A231 /* ExpenseCategory.swift in Sources */,
 				ABD07299F8E67836BBF7A4AD /* BudgetApp.swift in Sources */,

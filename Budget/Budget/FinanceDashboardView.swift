@@ -3,6 +3,7 @@ import SwiftUI
 struct FinanceDashboardView: View {
     let mode: FinanceMode
     @Binding var isOverlayPresented: Bool
+    @Binding var isBottomGreenFillPresented: Bool
     @State private var categories: [ExpenseCategory]
     @State private var allTransactions: [ExpenseTransaction] = []
     @State private var selectedPage = 0
@@ -19,6 +20,7 @@ struct FinanceDashboardView: View {
     @FocusState private var isAmountEditingFocused: Bool
     @State private var planEditingCategoryName: String?
     @State private var planEditingDraft = ""
+    @State private var isSettingsPresented = false
 
     private var totalPlan: Int {
         categoriesForCurrentMonth.reduce(0) { $0 + $1.plan }
@@ -75,12 +77,25 @@ struct FinanceDashboardView: View {
     init(mode: FinanceMode = .expense) {
         self.mode = mode
         _isOverlayPresented = .constant(false)
+        _isBottomGreenFillPresented = .constant(false)
         _categories = State(initialValue: mode.defaultCategories)
     }
 
     init(mode: FinanceMode = .expense, isOverlayPresented: Binding<Bool>) {
         self.mode = mode
         _isOverlayPresented = isOverlayPresented
+        _isBottomGreenFillPresented = .constant(false)
+        _categories = State(initialValue: mode.defaultCategories)
+    }
+
+    init(
+        mode: FinanceMode = .expense,
+        isOverlayPresented: Binding<Bool>,
+        isBottomGreenFillPresented: Binding<Bool>
+    ) {
+        self.mode = mode
+        _isOverlayPresented = isOverlayPresented
+        _isBottomGreenFillPresented = isBottomGreenFillPresented
         _categories = State(initialValue: mode.defaultCategories)
     }
 
@@ -94,14 +109,14 @@ struct FinanceDashboardView: View {
                     Spacer()
 
                     SettingsButton {
-                        print("Settings tapped")
+                        isSettingsPresented = true
                     }
                 }
                 .padding(.top, 0)
 
                 HStack {
                     Text("Дельта: \(deltaText)")
-                        .font(.playfairDisplay(44, weight: .bold))
+                        .font(.playfairDisplay(31, weight: .bold))
                         .minimumScaleFactor(0.65)
                         .lineLimit(1)
                         .foregroundStyle(Color(.green))
@@ -113,7 +128,7 @@ struct FinanceDashboardView: View {
 
                 HStack {
                     Text(mode.screenTitle)
-                        .font(.playfairDisplay(42, weight: .semibold))
+                        .font(.playfairDisplay(30, weight: .semibold))
                         .foregroundStyle(Color(.green))
 
                     Spacer()
@@ -227,9 +242,11 @@ struct FinanceDashboardView: View {
             loadTransactions()
             loadCategoryPlans()
             syncOverlayState()
+            syncBottomGreenFillState()
         }
         .onChange(of: isAddTransactionPresented) { _ in
             syncOverlayState()
+            syncBottomGreenFillState()
         }
         .onChange(of: categoryEditingTransaction != nil) { _ in
             syncOverlayState()
@@ -245,6 +262,10 @@ struct FinanceDashboardView: View {
         }
         .onDisappear {
             isOverlayPresented = false
+            isBottomGreenFillPresented = false
+        }
+        .fullScreenCover(isPresented: $isSettingsPresented) {
+            AppSettingsView(onBack: { isSettingsPresented = false })
         }
     }
 }
@@ -472,9 +493,13 @@ private extension FinanceDashboardView {
                     activePicker = nil
                 }
 
+            Color(.green)
+                .frame(height: 180)
+                .ignoresSafeArea(edges: .bottom)
+
             VStack(alignment: .leading, spacing: 12) {
                 Text("Сумма")
-                    .font(.playfairDisplay(24, weight: .semibold))
+                    .font(.playfairDisplay(20, weight: .semibold))
                     .foregroundStyle(.white)
 
                 HStack(spacing: 10) {
@@ -486,7 +511,7 @@ private extension FinanceDashboardView {
                         )
                     )
                         .focused($isAmountInputFocused)
-                        .font(.playfairDisplay(34, weight: .semibold))
+                        .font(.playfairDisplay(28, weight: .semibold))
                         .foregroundStyle(.black)
                         .keyboardType(.numberPad)
                         .submitLabel(.done)
@@ -501,12 +526,12 @@ private extension FinanceDashboardView {
                     }
                 }
                 .padding(.horizontal, 14)
-                .frame(height: 56)
+                .frame(height: 50)
                 .background(.white)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
 
                 Text("Категория")
-                    .font(.playfairDisplay(24, weight: .semibold))
+                    .font(.playfairDisplay(20, weight: .semibold))
                     .foregroundStyle(.white)
 
                 fieldButtonRow(value: transaction.category) {
@@ -524,7 +549,7 @@ private extension FinanceDashboardView {
                 HStack(spacing: 12) {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Дата")
-                            .font(.playfairDisplay(24, weight: .semibold))
+                            .font(.playfairDisplay(20, weight: .semibold))
                             .foregroundStyle(.white)
 
                         fieldButtonRow(value: formatDate(transaction.date)) {
@@ -537,7 +562,7 @@ private extension FinanceDashboardView {
 
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Валюта")
-                            .font(.playfairDisplay(24, weight: .semibold))
+                            .font(.playfairDisplay(20, weight: .semibold))
                             .foregroundStyle(.white)
 
                         fieldButtonRow(value: transaction.currency) {
@@ -572,31 +597,32 @@ private extension FinanceDashboardView {
                         }
                         activePicker = nil
                     }
-                    .font(.playfairDisplay(20, weight: .semibold))
+                    .font(.playfairDisplay(18, weight: .semibold))
                     .foregroundStyle(.black)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 56)
+                    .frame(height: 50)
                     .background(Color(.systemGray5))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
 
                     Button("ОК") {
                         addTransaction()
                     }
-                    .font(.playfairDisplay(20, weight: .semibold))
+                    .font(.playfairDisplay(18, weight: .semibold))
                     .foregroundStyle(Color(.green))
                     .frame(maxWidth: .infinity)
-                    .frame(height: 56)
+                    .frame(height: 50)
                     .background(.white)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
                 .padding(.top, 14)
-                .padding(.bottom, 20)
+                .padding(.bottom, 12)
             }
-            .padding(16)
+            .padding(14)
             .background(Color(.green))
             .clipShape(
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
             )
+            .padding(.bottom, 56)
         }
         .ignoresSafeArea(edges: .bottom)
     }
@@ -682,6 +708,10 @@ private extension FinanceDashboardView {
         isOverlayPresented = isAddTransactionPresented || isTransactionEditorVisible || isPlanEditorVisible
     }
 
+    func syncBottomGreenFillState() {
+        isBottomGreenFillPresented = isAddTransactionPresented
+    }
+
     func saveTransactions() {
         guard let data = try? JSONEncoder().encode(allTransactions) else { return }
         UserDefaults.standard.set(data, forKey: transactionsStorageKey)
@@ -757,7 +787,7 @@ private extension FinanceDashboardView {
         Button(action: action) {
             HStack(spacing: 8) {
                 Text(value)
-                    .font(.playfairDisplay(22, weight: .semibold))
+                    .font(.playfairDisplay(20, weight: .semibold))
                     .foregroundStyle(.black)
                     .lineLimit(1)
 
@@ -768,7 +798,7 @@ private extension FinanceDashboardView {
                     .foregroundStyle(Color(.green))
             }
             .padding(.horizontal, 14)
-            .frame(height: 56)
+            .frame(height: 50)
             .background(.white)
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
@@ -952,7 +982,9 @@ enum FinanceMode {
             return [
                 .init(category: "Еда", plan: 0, fact: 0),
                 .init(category: "Транспорт", plan: 0, fact: 0),
-                .init(category: "Красота", plan: 0, fact: 0)
+                .init(category: "Красота", plan: 0, fact: 0),
+                .init(category: "Спорт", plan: 0, fact: 0),
+                .init(category: "Связь", plan: 0, fact: 0)
             ]
         case .income:
             return [
