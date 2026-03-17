@@ -81,6 +81,7 @@ struct GoalsView: View {
                     withAnimation(.easeInOut(duration: 0.22)) {
                         isAddGoalPresented = true
                     }
+                    syncBottomGreenFillState()
                 } label: {
                     RoundedRectangle(cornerRadius: 18)
                         .fill(Color(.green))
@@ -95,7 +96,7 @@ struct GoalsView: View {
                 .padding(.bottom, 4)
             }
 
-            if isAddGoalPresented || replenishingGoal != nil {
+            if replenishingGoal != nil {
                 Color.black.opacity(0.2)
                     .ignoresSafeArea()
                     .onTapGesture { closePopups() }
@@ -161,8 +162,12 @@ struct GoalsView: View {
 private extension GoalsView {
     var addGoalOverlay: some View {
         ZStack(alignment: .bottom) {
+            Color.black.opacity(0.25)
+                .ignoresSafeArea()
+                .onTapGesture { closePopups() }
+
             Color(.green)
-                .frame(height: 72)
+                .frame(height: 180)
                 .ignoresSafeArea(edges: .bottom)
 
             VStack(alignment: .leading, spacing: 12) {
@@ -219,8 +224,9 @@ private extension GoalsView {
             .padding(14)
             .background(Color(.green))
             .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-            .padding(.bottom, 0)
+            .padding(.bottom, 56)
         }
+        .ignoresSafeArea(edges: .bottom)
     }
 
     func replenishOverlay(goal: GoalItem) -> some View {
@@ -334,6 +340,7 @@ private extension GoalsView {
         isReplenishAmountFocused = false
         replenishAmount = ""
         syncOverlayState()
+        syncBottomGreenFillState()
     }
 
     func syncOverlayState() {

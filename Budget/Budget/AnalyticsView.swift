@@ -1,8 +1,10 @@
 import SwiftUI
 
-private enum AnalyticsYearChartMode {
+private enum AnalyticsYearChartMode: String, Identifiable {
     case pie
     case bar
+
+    var id: String { rawValue }
 }
 
 struct AnalyticsView: View {
@@ -16,8 +18,7 @@ struct AnalyticsView: View {
     @State private var hasAnyDataByMonth: [Int: Bool] = [:]
     @State private var planEditingCategoryName: String?
     @State private var planEditingDraft = ""
-    @State private var isYearChartPresented = false
-    @State private var yearChartInitialMode: AnalyticsYearChartMode = .pie
+    @State private var yearChartRoute: AnalyticsYearChartMode?
     @State private var isSettingsPresented = false
 
     private let mode: FinanceMode = .expense
@@ -97,7 +98,7 @@ struct AnalyticsView: View {
                 ZStack {
                     HStack(spacing: 26) {
                         Button {
-                            presentYearChart(mode: .pie)
+                            yearChartRoute = .pie
                         } label: {
                             Image(systemName: "chart.pie.fill")
                                 .font(.system(size: 36))
@@ -106,7 +107,7 @@ struct AnalyticsView: View {
                         .buttonStyle(.plain)
 
                         Button {
-                            presentYearChart(mode: .bar)
+                            yearChartRoute = .bar
                         } label: {
                             Image(systemName: "chart.bar")
                                 .font(.system(size: 36))
@@ -149,15 +150,12 @@ struct AnalyticsView: View {
         .onChange(of: planEditingCategoryName != nil) { _ in syncOverlayState() }
         .onChange(of: isYearPickerPresented) { _ in syncOverlayState() }
         .onDisappear { isOverlayPresented = false }
-        .fullScreenCover(
-            isPresented: $isYearChartPresented,
-            onDismiss: { isYearChartPresented = false }
-        ) {
+        .fullScreenCover(item: $yearChartRoute) { route in
             AnalyticsYearChartView(
                 mode: mode,
                 initialYear: selectedYear,
-                initialMode: yearChartInitialMode,
-                onDismiss: { isYearChartPresented = false }
+                initialMode: route,
+                onDismiss: { yearChartRoute = nil }
             )
         }
         .fullScreenCover(isPresented: $isSettingsPresented) {
@@ -455,13 +453,6 @@ private extension AnalyticsView {
             isYearPickerPresented = false
         }
         syncOverlayState()
-    }
-
-    func presentYearChart(mode: AnalyticsYearChartMode) {
-        yearChartInitialMode = mode
-        DispatchQueue.main.async {
-            isYearChartPresented = true
-        }
     }
 
     func yearText(_ year: Int) -> String {
@@ -950,7 +941,7 @@ private struct DonutChartView: View {
                             .foregroundStyle(.black)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
-                        Text("\(percent(for: values[selectedIndex].amount))%")
+                        Text(formatAmount(values[selectedIndex].amount))
                             .font(.playfairDisplay(14))
                             .foregroundStyle(.black.opacity(0.8))
                     }
@@ -973,7 +964,11 @@ private struct DonutChartView: View {
         return CGFloat(Double(amount) / Double(total))
     }
 
-    private func percent(for amount: Int) -> Int {
-        Int((Double(amount) / Double(total) * 100).rounded())
+    private func formatAmount(_ value: Int) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.groupingSeparator = " "
+        formatter.maximumFractionDigits = 0
+        return (formatter.string(from: NSNumber(value: value)) ?? "\(value)") + " ₽"
     }
 }

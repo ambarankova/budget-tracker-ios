@@ -898,7 +898,7 @@ private struct TransactionsMonthTableView: View {
                             .font(.playfairDisplay(20))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .contentShape(Rectangle())
-                            .onLongPressGesture(minimumDuration: 0.5) {
+                            .onTapGesture {
                                 onEditCategory(transaction)
                             }
 
@@ -906,7 +906,7 @@ private struct TransactionsMonthTableView: View {
                             .font(.playfairDisplay(18))
                             .frame(width: 110, alignment: .leading)
                             .contentShape(Rectangle())
-                            .onLongPressGesture(minimumDuration: 0.5) {
+                            .onTapGesture {
                                 onEditDate(transaction)
                             }
 
@@ -914,7 +914,7 @@ private struct TransactionsMonthTableView: View {
                             .font(.playfairDisplay(20))
                             .frame(width: 110, alignment: .leading)
                             .contentShape(Rectangle())
-                            .onLongPressGesture(minimumDuration: 0.5) {
+                            .onTapGesture {
                                 onEditAmount(transaction)
                             }
                     }
