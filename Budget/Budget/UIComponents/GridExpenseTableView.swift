@@ -6,38 +6,56 @@ struct TotalTableView: View {
     let totalFact: Int
     let isRedWhenFactLessThanPlan: Bool
     var onPlanTap: (String) -> Void
+    var onCategoryTap: (String) -> Void
+    var onDeleteCategory: ((String) -> Void)?
 
     var body: some View {
         VStack(spacing: 0) {
             tableHeader
-                .padding(.horizontal, 20)
+                .padding(.horizontal, AppLayout.screenHorizontalPadding)
                 .padding(.vertical, 8)
 
             Divider()
                 .overlay(Color(.gray).opacity(0.3))
 
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 0) {
-                    ForEach(categories) { category in
+            List {
+                ForEach(categories) { category in
+                    VStack(spacing: 0) {
                         row(
                             title: category.category,
                             plan: category.plan,
                             fact: category.fact,
                             isTotal: false
                         )
-                        .padding(.horizontal, 20)
                         .padding(.vertical, 8)
-
                         Divider()
                             .overlay(Color(.gray).opacity(0.3))
                     }
+                    .padding(.horizontal, AppLayout.screenHorizontalPadding)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                    .listRowBackground(Color(.beige))
+                    .listRowSeparator(.hidden)
+                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                        Button(role: .destructive) {
+                            onDeleteCategory?(category.category)
+                        } label: {
+                            Text("Удалить")
+                        }
+                    }
                 }
             }
-            .frame(maxHeight: .infinity, alignment: .top)
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .environment(\.defaultMinListRowHeight, 44)
+            .frame(maxHeight: .infinity)
+
+            Divider()
+                .overlay(Color(.gray).opacity(0.3))
 
             row(title: "Итого", plan: totalPlan, fact: totalFact, isTotal: true)
-                .padding(.horizontal, 20)
+                .padding(.horizontal, AppLayout.screenHorizontalPadding)
                 .padding(.vertical, 8)
+                .padding(.bottom, 10)
         }
     }
 }
@@ -67,6 +85,12 @@ private extension TotalTableView {
                 .truncationMode(.tail)
                 .font(.playfairDisplay(20, weight: isTotal ? .bold : .regular))
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    if !isTotal {
+                        onCategoryTap(title)
+                    }
+                }
 
             Text(formatAmount(plan))
                 .lineLimit(1)
@@ -88,13 +112,8 @@ private extension TotalTableView {
     }
 
     func formatAmount(_ value: Int) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.groupingSeparator = " "
-        formatter.maximumFractionDigits = 0
-
-        let number = NSNumber(value: value)
-        return (formatter.string(from: number) ?? "\(value)") + " ₽"
+        let symbol = AppCurrency.symbol(for: AppSettingsCurrency.loadBaseCurrencyCode())
+        return AppMoney.formatCentsForDisplay(value, currencySymbol: symbol)
     }
 
     func factColor(plan: Int, fact: Int) -> Color {

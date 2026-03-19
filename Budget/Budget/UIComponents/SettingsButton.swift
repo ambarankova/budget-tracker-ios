@@ -17,8 +17,8 @@ struct SettingsButton: View {
 struct AppSettingsView: View {
     var onBack: () -> Void
 
-    @State private var selectedCurrency = AppSettingsView.loadCurrency()
-    @State private var currencyDraft = AppSettingsView.loadCurrency()
+    @State private var selectedCurrency = AppSettingsCurrency.loadBaseCurrencyCode()
+    @State private var currencyDraft = AppSettingsCurrency.loadBaseCurrencyCode()
     @State private var isCurrencyPickerPresented = false
 
     var body: some View {
@@ -57,7 +57,7 @@ struct AppSettingsView: View {
                 VStack(spacing: 18) {
                     settingsRow(
                         title: "Валюта",
-                        subtitle: selectedCurrency,
+                        subtitle: AppCurrency.displayName(for: selectedCurrency),
                         action: {
                             currencyDraft = selectedCurrency
                             withAnimation(.easeInOut(duration: 0.22)) {
@@ -83,7 +83,9 @@ struct AppSettingsView: View {
 
                 VStack(spacing: 12) {
                     Picker("Валюта", selection: $currencyDraft) {
-                        Text("RUB").tag("RUB")
+                        ForEach(AppCurrency.mainCurrencies) { currency in
+                            Text("\(currency.displayName) (\(currency.rawValue))").tag(currency.rawValue)
+                        }
                     }
                     .pickerStyle(.wheel)
                     .labelsHidden()
@@ -100,7 +102,7 @@ struct AppSettingsView: View {
 
                         Button("ОК") {
                             selectedCurrency = currencyDraft
-                            AppSettingsView.saveCurrency(selectedCurrency)
+                            AppSettingsCurrency.saveBaseCurrencyCode(selectedCurrency)
                             closeCurrencyPicker()
                         }
                         .font(.playfairDisplay(20, weight: .semibold))
@@ -153,13 +155,4 @@ struct AppSettingsView: View {
         }
     }
 
-    private static let currencyStorageKey = "budget.settings.currency.v1"
-
-    private static func loadCurrency() -> String {
-        UserDefaults.standard.string(forKey: currencyStorageKey) ?? "RUB"
-    }
-
-    private static func saveCurrency(_ value: String) {
-        UserDefaults.standard.set(value, forKey: currencyStorageKey)
-    }
 }

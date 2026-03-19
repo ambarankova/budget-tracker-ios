@@ -4,6 +4,8 @@ struct ContentView: View {
     @State private var selectedMenuItem: BottomMenuItem = .expense
     @State private var isAnyOverlayPresented = false
     @State private var isBottomGreenFillPresented = false
+    @State private var selectedReportMonth = Calendar.current.component(.month, from: Date())
+    @State private var selectedReportYear = Calendar.current.component(.year, from: Date())
 
     var body: some View {
         VStack(spacing: 0) {
@@ -13,13 +15,17 @@ struct ContentView: View {
                     FinanceDashboardView(
                         mode: .income,
                         isOverlayPresented: $isAnyOverlayPresented,
-                        isBottomGreenFillPresented: $isBottomGreenFillPresented
+                        isBottomGreenFillPresented: $isBottomGreenFillPresented,
+                        selectedReportMonth: $selectedReportMonth,
+                        selectedReportYear: $selectedReportYear
                     )
                 case .expense:
                     FinanceDashboardView(
                         mode: .expense,
                         isOverlayPresented: $isAnyOverlayPresented,
-                        isBottomGreenFillPresented: $isBottomGreenFillPresented
+                        isBottomGreenFillPresented: $isBottomGreenFillPresented,
+                        selectedReportMonth: $selectedReportMonth,
+                        selectedReportYear: $selectedReportYear
                     )
                 case .analytics:
                     AnalyticsView(isOverlayPresented: $isAnyOverlayPresented)
