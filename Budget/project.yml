@@ -32,7 +32,12 @@ targets:
           - UIInterfaceOrientationPortrait
         UIDeviceFamily:
           - 1  # iPhone
-#        UILaunchStoryboardName: LaunchScreen
+          - 2  # iPad
+        UILaunchScreen: {}
+        UIAppFonts:
+          - PlayfairDisplay-Bold.ttf
+          - PlayfairDisplay-Regular.ttf
+          - PlayfairDisplay-SemiBold.ttf
         UIBackgroundModes:
           - audio
 #    dependencies:
