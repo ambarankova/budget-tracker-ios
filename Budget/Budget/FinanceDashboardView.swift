@@ -19,6 +19,7 @@ struct FinanceDashboardView: View {
     @State private var transaction = TransactionDraft()
     @State private var activePicker: AddTransactionPicker?
     @FocusState private var isAmountInputFocused: Bool
+    @FocusState private var isNewCategoryInputFocused: Bool
     @State private var categoryEditingTransaction: ExpenseTransaction?
     @State private var categoryEditingDraft = ""
     @State private var dateEditingTransaction: ExpenseTransaction?
@@ -679,6 +680,7 @@ private extension FinanceDashboardView {
                         .frame(height: 50)
                         .background(Color(.systemGray5))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .focused($isNewCategoryInputFocused)
                 }
 
                 HStack(spacing: 12) {
@@ -728,6 +730,15 @@ private extension FinanceDashboardView {
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .padding(.horizontal, 20)
             .transition(.move(edge: .bottom).combined(with: .opacity))
+            .onChange(of: categoryEditingDraft) { newValue in
+                if newValue == newCategoryKey {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        isNewCategoryInputFocused = true
+                    }
+                } else {
+                    isNewCategoryInputFocused = false
+                }
+            }
         } else if let editing = amountEditingTransaction {
             VStack(spacing: 12) {
                 Text("Введите значение")
@@ -800,6 +811,7 @@ private extension FinanceDashboardView {
                 .ignoresSafeArea()
                 .onTapGesture {
                     isAmountInputFocused = false
+                    isNewCategoryInputFocused = false
                     withAnimation(.easeInOut(duration: 0.24)) {
                         isAddTransactionPresented = false
                     }
@@ -849,6 +861,7 @@ private extension FinanceDashboardView {
 
                 fieldButtonRow(value: transaction.category == newCategoryKey ? "Новая" : transaction.category) {
                     isAmountInputFocused = false
+                    isNewCategoryInputFocused = false
                     if categories.isEmpty {
                         transaction.category = newCategoryKey
                     } else {
@@ -866,6 +879,7 @@ private extension FinanceDashboardView {
                         .frame(height: 50)
                         .background(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .focused($isNewCategoryInputFocused)
                         .transition(.opacity.combined(with: .move(edge: .top)))
                 }
 
@@ -875,6 +889,12 @@ private extension FinanceDashboardView {
                         .onChange(of: transaction.category) { newValue in
                             if newValue == newCategoryKey {
                                 activePicker = nil
+                                // Focus the newly shown TextField to prevent iOS from closing keyboard immediately.
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                    isNewCategoryInputFocused = true
+                                }
+                            } else {
+                                isNewCategoryInputFocused = false
                             }
                         }
                 }
@@ -929,6 +949,8 @@ private extension FinanceDashboardView {
                             isAddTransactionPresented = false
                         }
                         activePicker = nil
+                        isAmountInputFocused = false
+                        isNewCategoryInputFocused = false
                         newCategoryDraft = ""
                     }
                     .font(.playfairDisplay(18, weight: .semibold))
@@ -959,8 +981,15 @@ private extension FinanceDashboardView {
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
             )
             .padding(.bottom, 56)
-            .onTapGesture {
-                isAmountInputFocused = false
+        }
+        .onChange(of: transaction.category) { newValue in
+            if newValue == newCategoryKey {
+                // Delay ensures the conditional TextField is mounted before focusing.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    isNewCategoryInputFocused = true
+                }
+            } else {
+                isNewCategoryInputFocused = false
             }
         }
         .ignoresSafeArea(edges: .bottom)
@@ -1002,6 +1031,8 @@ private extension FinanceDashboardView {
             isAddTransactionPresented = false
         }
         activePicker = nil
+        isAmountInputFocused = false
+        isNewCategoryInputFocused = false
         selectedPage = 1
         transaction = TransactionDraft(defaultCategory: categories.first?.category ?? newCategoryKey)
         transaction.currency = baseCurrencyCode
@@ -1101,6 +1132,7 @@ private extension FinanceDashboardView {
         amountEditingDraft = ""
         newCategoryDraft = ""
         isAmountEditingFocused = false
+        isNewCategoryInputFocused = false
         syncOverlayState()
     }
 
