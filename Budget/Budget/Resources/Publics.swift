@@ -5,6 +5,17 @@ enum AppLayout {
     static let screenHorizontalPadding: CGFloat = 16
 }
 
+/// Shared date formatters — created once, reused everywhere.
+enum AppDateFormat {
+    /// "dd.MM.yyyy" formatted with the current device locale — for display in the UI.
+    static let display: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale.current
+        f.dateFormat = "dd.MM.yyyy"
+        return f
+    }()
+}
+
 enum AppCurrency: String, CaseIterable, Identifiable {
     case RUB
     case USD
@@ -14,14 +25,9 @@ enum AppCurrency: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    /// Localized currency name via the OS — adapts to device language automatically.
     var displayName: String {
-        switch self {
-        case .RUB: return "Рубль"
-        case .USD: return "Доллар"
-        case .EUR: return "Евро"
-        case .GBP: return "Фунт"
-        case .CNY: return "Юань"
-        }
+        Locale.current.localizedString(forCurrencyCode: rawValue) ?? rawValue
     }
 
     var symbol: String {

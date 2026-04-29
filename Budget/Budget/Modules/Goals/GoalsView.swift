@@ -34,10 +34,11 @@ struct GoalsView: View {
                 HStack {
                     Spacer()
                     SettingsButton { isSettingsPresented = true }
+                        .accessibilityLabel(L10n.a11yOpenSettings)
                 }
 
                 HStack {
-                    Text("Цели")
+                    Text(L10n.goals)
                         .font(.playfairDisplay(40, weight: .semibold))
                         .foregroundStyle(Color(.green))
                     Spacer()
@@ -48,7 +49,7 @@ struct GoalsView: View {
 
                 if viewModel.goals.isEmpty {
                     Spacer()
-                    Text("Пока что вы не поставили ни одной\nфинансовой цели!")
+                    Text(L10n.goalsEmpty)
                         .font(.playfairDisplay(22))
                         .foregroundStyle(.black)
                         .multilineTextAlignment(.center)
@@ -93,6 +94,7 @@ struct GoalsView: View {
                                 .foregroundStyle(.white)
                         }
                 }
+                .accessibilityLabel(L10n.goals)
                 .padding(.horizontal, AppLayout.screenHorizontalPadding)
                 .padding(.bottom, 4)
             }
@@ -201,18 +203,18 @@ private extension GoalsView {
             Color(.green).frame(height: 180).ignoresSafeArea(edges: .bottom)
 
             VStack(alignment: .leading, spacing: 12) {
-                Text("Название").font(.playfairDisplay(20, weight: .semibold)).foregroundStyle(.white)
+                Text(L10n.name).font(.playfairDisplay(20, weight: .semibold)).foregroundStyle(.white)
 
-                TextField("Образование", text: $addGoalName)
+                TextField(L10n.name, text: $addGoalName)
                     .font(.playfairDisplay(18, weight: .semibold))
                     .padding(.horizontal, 14)
                     .frame(height: 50)
                     .background(.white)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
 
-                Text("Сумма").font(.playfairDisplay(20, weight: .semibold)).foregroundStyle(.white)
+                Text(L10n.sum).font(.playfairDisplay(20, weight: .semibold)).foregroundStyle(.white)
 
-                TextField("320 000 ₽", text: Binding(
+                TextField("0", text: Binding(
                     get: { formattedAmount(addGoalAmount) },
                     set: { addGoalAmount = normalizedAmount($0) }
                 ))
@@ -225,14 +227,14 @@ private extension GoalsView {
                 .clipShape(RoundedRectangle(cornerRadius: 10))
 
                 HStack(spacing: 12) {
-                    Button("Отмена") { closePopups() }
+                    Button(L10n.cancel) { closePopups() }
                         .font(.playfairDisplay(18, weight: .semibold))
                         .foregroundStyle(.black)
                         .frame(maxWidth: .infinity).frame(height: 50)
                         .background(Color(.systemGray5))
                         .clipShape(RoundedRectangle(cornerRadius: 10))
 
-                    Button("ОК") {
+                    Button(L10n.ok) {
                         guard let amount = Int(addGoalAmount.filter(\.isWholeNumber)), amount > 0 else { return }
                         viewModel.createGoal(title: addGoalName, targetAmount: amount)
                         closePopups()
@@ -262,7 +264,7 @@ private extension GoalsView {
 
     func replenishOverlay(goal: Goal) -> some View {
         VStack(spacing: 12) {
-            Text("Введите значение")
+            Text(L10n.enterValue)
                 .font(.playfairDisplay(22, weight: .semibold))
                 .foregroundStyle(.black)
 
@@ -280,13 +282,13 @@ private extension GoalsView {
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
             HStack(spacing: 12) {
-                Button("Отмена") { closePopups() }
+                Button(L10n.cancel) { closePopups() }
                     .font(.playfairDisplay(20, weight: .semibold)).foregroundStyle(.black)
                     .frame(maxWidth: .infinity).frame(height: 56)
                     .background(Color(.systemGray5))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
 
-                Button("ОК") {
+                Button(L10n.ok) {
                     guard let delta = Int(replenishAmount.filter(\.isWholeNumber)), delta > 0 else { return }
                     viewModel.replenish(goalId: goal.id, amount: delta)
                     closePopups()
@@ -358,14 +360,14 @@ private struct GoalRowView: View {
             .frame(height: 32)
 
             HStack(spacing: 12) {
-                Button("История") { onHistoryTap() }
+                Button(L10n.history) { onHistoryTap() }
                     .font(.playfairDisplay(20)).foregroundStyle(.black)
                     .frame(maxWidth: .infinity).frame(height: 56)
                     .background(Color(.beige))
                     .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color(.green).opacity(0.5), lineWidth: 1))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
 
-                Button("Пополнить") { onReplenishTap() }
+                Button(L10n.replenish) { onReplenishTap() }
                     .font(.playfairDisplay(20)).foregroundStyle(.white)
                     .frame(maxWidth: .infinity).frame(height: 56)
                     .background(Color(.green))
@@ -416,7 +418,7 @@ private struct GoalHistoryView: View {
                     } label: {
                         HStack(spacing: 6) {
                             Image(systemName: "chevron.left").font(.system(size: 24, weight: .medium))
-                            Text("Назад").font(.playfairDisplay(24, weight: .semibold))
+                            Text(L10n.back).font(.playfairDisplay(24, weight: .semibold))
                         }
                         .foregroundStyle(Color(.green))
                     }
@@ -456,14 +458,14 @@ private struct GoalHistoryView: View {
                         .listRowInsets(EdgeInsets(top: 8, leading: AppLayout.screenHorizontalPadding, bottom: 8, trailing: AppLayout.screenHorizontalPadding))
                         .listRowBackground(Color(.beige))
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) { onDeleteEntry(entry.id) } label: { Text("Удалить") }
+                            Button(role: .destructive) { onDeleteEntry(entry.id) } label: { Text(L10n.delete) }
                         }
                     }
                 }
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
 
-                Button("Удалить цель") { isDeleteGoalAlertPresented = true }
+                Button(L10n.deleteGoal) { isDeleteGoalAlertPresented = true }
                     .font(.playfairDisplay(24)).foregroundStyle(.white)
                     .frame(maxWidth: .infinity).frame(height: 56)
                     .background(Color(.red))
@@ -485,7 +487,7 @@ private struct GoalHistoryView: View {
                     DatePicker("", selection: $dateDraft, in: ...Date(), displayedComponents: .date)
                         .datePickerStyle(.wheel).labelsHidden().frame(height: 180)
 
-                    Text("Сумма").font(.playfairDisplay(20, weight: .semibold)).foregroundStyle(.black)
+                    Text(L10n.sum).font(.playfairDisplay(20, weight: .semibold)).foregroundStyle(.black)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
                     TextField("0", text: Binding(
@@ -500,12 +502,12 @@ private struct GoalHistoryView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 10))
 
                     HStack(spacing: 12) {
-                        Button("Отмена") { closeEditor() }
+                        Button(L10n.cancel) { closeEditor() }
                             .font(.playfairDisplay(20, weight: .semibold)).foregroundStyle(.black)
                             .frame(maxWidth: .infinity).frame(height: 56)
                             .background(Color(.systemGray5)).clipShape(RoundedRectangle(cornerRadius: 10))
 
-                        Button("ОК") {
+                        Button(L10n.ok) {
                             let cleaned = amountDraft.filter(\.isWholeNumber)
                             guard let amount = Int(cleaned), amount > 0 else { return }
                             onUpdateEntryDate(entry.id, dateDraft)
@@ -529,17 +531,17 @@ private struct GoalHistoryView: View {
                     .transition(.opacity).zIndex(1)
 
                 VStack(spacing: 12) {
-                    Text("Удалить цель?").font(.playfairDisplay(24, weight: .semibold)).foregroundStyle(.black)
-                    Text("Это действие нельзя отменить.")
+                    Text(L10n.deleteGoalTitle).font(.playfairDisplay(24, weight: .semibold)).foregroundStyle(.black)
+                    Text(L10n.deleteIrreversible)
                         .font(.playfairDisplay(16)).foregroundStyle(.black.opacity(0.8)).multilineTextAlignment(.center)
 
                     HStack(spacing: 12) {
-                        Button("Отмена") { isDeleteGoalAlertPresented = false }
+                        Button(L10n.cancel) { isDeleteGoalAlertPresented = false }
                             .font(.playfairDisplay(20, weight: .semibold)).foregroundStyle(.black)
                             .frame(maxWidth: .infinity).frame(height: 56)
                             .background(Color(.systemGray5)).clipShape(RoundedRectangle(cornerRadius: 10))
 
-                        Button("Да, удалить") { onDeleteGoal(); isDeleteGoalAlertPresented = false }
+                        Button(L10n.delete) { onDeleteGoal(); isDeleteGoalAlertPresented = false }
                             .font(.playfairDisplay(20, weight: .semibold)).foregroundStyle(.white)
                             .frame(maxWidth: .infinity).frame(height: 56)
                             .background(Color(.red)).clipShape(RoundedRectangle(cornerRadius: 10))
@@ -561,7 +563,7 @@ private struct GoalHistoryView: View {
     }
 
     private func formatDate(_ date: Date) -> String {
-        let f = DateFormatter(); f.dateFormat = "dd.MM.yyyy"; return f.string(from: date)
+        AppDateFormat.display.string(from: date)
     }
 
     private func format(_ value: Int) -> String {
@@ -578,7 +580,6 @@ private struct GoalHistoryView: View {
     }
 }
 
-// Goal conforms to Identifiable (from Models/Goal.swift), used as fullScreenCover item.
 extension Goal: Equatable {
     static func == (lhs: Goal, rhs: Goal) -> Bool { lhs.id == rhs.id }
 }

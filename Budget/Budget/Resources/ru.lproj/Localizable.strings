@@ -1,0 +1,59 @@
+// MARK: - General
+"cancel"   = "Отмена";
+"save"     = "Сохранить";
+"delete"   = "Удалить";
+"back"     = "Назад";
+"currency" = "Валюта";
+"name"     = "Название";
+
+// MARK: - Time
+"month" = "Месяц";
+"year"  = "Год";
+
+// MARK: - Table headers
+"category" = "Категория";
+"plan"     = "План";
+"fact"     = "Факт";
+"total"    = "Итого";
+"date"     = "Дата";
+"sum"      = "Сумма";
+
+// MARK: - Finance mode
+"expense"   = "Расходы";
+"income"    = "Доходы";
+"analytics" = "Аналитика";
+"goals"     = "Цели";
+"delta"     = "Дельта";
+
+// MARK: - Actions
+"ok"     = "ОК";
+
+// MARK: - Settings
+"settings"    = "Настройки";
+"share"       = "Поделиться";
+"rate_app"    = "Оценить\nприложение";
+"buy_premium" = "Купить премиум";
+
+// MARK: - Inputs / overlays
+"enter_value"              = "Введите значение";
+"category_name"            = "Название категории";
+"plan_category_%@"         = "План: %@";
+"confirm_delete_category"  = "Вы уверены, что хотите удалить категорию?";
+
+// MARK: - Category
+"new_category" = "Новая";
+
+// MARK: - Goals screen
+"history"    = "История";
+"replenish"  = "Пополнить";
+"delete_goal"= "Удалить цель";
+"goals_empty"        = "Пока что вы не поставили ни одной\nфинансовой цели!";
+"delete_goal_title"  = "Удалить цель?";
+"delete_irreversible"= "Это действие нельзя отменить.";
+
+// MARK: - Accessibility
+"a11y_add_transaction"   = "Добавить транзакцию";
+"a11y_open_settings"     = "Открыть настройки";
+"a11y_pick_month"        = "Выбрать месяц";
+"a11y_page_summary"      = "Сводная таблица";
+"a11y_page_transactions" = "Список транзакций";

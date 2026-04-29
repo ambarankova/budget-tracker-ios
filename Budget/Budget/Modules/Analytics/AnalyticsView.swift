@@ -21,7 +21,9 @@ struct AnalyticsView: View {
         planEditingCategoryName != nil || categoryNameEditingCategory != nil || isYearPickerPresented
     }
 
-    private let monthSymbols = ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"]
+    private let monthSymbols: [String] = {
+        var f = DateFormatter(); f.locale = Locale.current; return f.shortMonthSymbols
+    }()
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -136,9 +138,9 @@ struct AnalyticsView: View {
             viewModel.onAppear()
             syncOverlayState()
         }
-        .onChange(of: planEditingCategoryName != nil)      { _ in syncOverlayState() }
-        .onChange(of: categoryNameEditingCategory != nil)  { _ in syncOverlayState() }
-        .onChange(of: isYearPickerPresented)               { _ in syncOverlayState() }
+        .onChange(of: planEditingCategoryName != nil) { _ in syncOverlayState() }
+        .onChange(of: categoryNameEditingCategory != nil) { _ in syncOverlayState() }
+        .onChange(of: isYearPickerPresented) { _ in syncOverlayState() }
         .onChange(of: isSettingsPresented) { isPresented in
             guard !isPresented else { return }
             viewModel.onSettingsDismissed()
@@ -177,7 +179,7 @@ struct AnalyticsView: View {
     @ViewBuilder
     private func categoryColumn(minHeight: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Категория")
+            Text(L10n.category)
                 .font(.playfairDisplay(20))
                 .frame(width: 150, alignment: .leading)
                 .padding(.vertical, 8)
@@ -200,7 +202,7 @@ struct AnalyticsView: View {
             }
 
             Spacer()
-            Text("Итого")
+            Text(L10n.total)
                 .font(.playfairDisplay(20, weight: .bold))
                 .frame(width: 150, alignment: .leading)
                 .padding(.vertical, 8)
@@ -213,7 +215,7 @@ struct AnalyticsView: View {
     private func monthsAndPlanColumns(minHeight: CGFloat) -> some View {
         VStack(spacing: 0) {
             // Header
-            monthRow(values: monthSymbols + ["Итого"], planText: "План", bold: false, onPlanTap: nil)
+            monthRow(values: monthSymbols + [L10n.total], planText: L10n.plan, bold: false, onPlanTap: nil)
                 .padding(.vertical, 8)
             Divider().overlay(Color(.gray).opacity(0.3))
 
@@ -294,7 +296,7 @@ struct AnalyticsView: View {
             .pickerStyle(.segmented)
             .padding(.horizontal, 2)
 
-            Picker("Год", selection: $yearPickerDraft) {
+            Picker(L10n.year, selection: $yearPickerDraft) {
                 ForEach(viewModel.availableYears, id: \.self) { Text(String($0)).tag($0) }
             }
             .pickerStyle(.wheel)
@@ -302,13 +304,13 @@ struct AnalyticsView: View {
             .frame(height: 180)
 
             HStack(spacing: 12) {
-                Button("Отмена") {
+                Button(L10n.cancel) {
                     withAnimation(.easeInOut(duration: 0.22)) { isYearPickerPresented = false }
                     syncOverlayState()
                 }
                 .overlayButton(style: .cancel)
 
-                Button("ОК") {
+                Button(L10n.ok) {
                     viewModel.selectedYear  = yearPickerDraft
                     viewModel.displayMode   = modePickerDraft
                     withAnimation(.easeInOut(duration: 0.22)) { isYearPickerPresented = false }
@@ -324,7 +326,7 @@ struct AnalyticsView: View {
 
     private var planEditorOverlay: some View {
         VStack(spacing: 12) {
-            Text("Введите значение")
+            Text(L10n.enterValue)
                 .font(.playfairDisplay(24, weight: .semibold))
                 .foregroundStyle(.black)
 
@@ -342,8 +344,8 @@ struct AnalyticsView: View {
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
             HStack(spacing: 12) {
-                Button("Отмена") { closeAllPopups() }.overlayButton(style: .cancel)
-                Button("ОК") {
+                Button(L10n.cancel) { closeAllPopups() }.overlayButton(style: .cancel)
+                Button(L10n.ok) {
                     guard let cents = AppMoney.parseToCents(planEditingDraft), cents >= 0,
                           let name = planEditingCategoryName else { return }
                     viewModel.updateCategoryPlan(name: name, planInBaseCurrency: cents)
@@ -362,11 +364,11 @@ struct AnalyticsView: View {
     private var categoryNameEditorOverlay: some View {
         if let oldName = categoryNameEditingCategory {
             VStack(spacing: 12) {
-                Text("Название категории")
+                Text(L10n.categoryName)
                     .font(.playfairDisplay(24, weight: .semibold))
                     .foregroundStyle(.black)
 
-                TextField("Название", text: $categoryNameEditingDraft)
+                TextField(L10n.name, text: $categoryNameEditingDraft)
                     .font(.playfairDisplay(20, weight: .semibold))
                     .padding(.horizontal, 14)
                     .frame(height: 56)
@@ -375,8 +377,8 @@ struct AnalyticsView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 10))
 
                 HStack(spacing: 12) {
-                    Button("Отмена") { closeAllPopups() }.overlayButton(style: .cancel)
-                    Button("ОК") {
+                    Button(L10n.cancel) { closeAllPopups() }.overlayButton(style: .cancel)
+                    Button(L10n.ok) {
                         let newName = categoryNameEditingDraft.trimmingCharacters(in: .whitespacesAndNewlines)
                         guard !newName.isEmpty, newName != oldName else { closeAllPopups(); return }
                         viewModel.renameCategory(from: oldName, to: newName)
@@ -432,7 +434,7 @@ private struct AnalyticsChartView: View {
                     } label: {
                         HStack(spacing: 6) {
                             Image(systemName: "chevron.left").font(.system(size: 24, weight: .medium))
-                            Text("Назад").font(.playfairDisplay(24, weight: .semibold))
+                            Text(L10n.back).font(.playfairDisplay(24, weight: .semibold))
                         }
                         .foregroundStyle(Color(.green))
                     }
@@ -444,7 +446,7 @@ private struct AnalyticsChartView: View {
                 .padding(.top, 4)
 
                 HStack {
-                    Text(chartMode == .bar ? "Дельта" : viewModel.displayMode.screenTitle)
+                    Text(chartMode == .bar ? L10n.delta : viewModel.displayMode.screenTitle)
                         .font(.playfairDisplay(40, weight: .semibold))
                         .foregroundStyle(Color(.green))
                     Spacer()

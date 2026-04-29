@@ -211,8 +211,9 @@ final class AnalyticsViewModel: ObservableObject {
         let incByMonth = Dictionary(grouping: incomes)  { cal.component(.month, from: $0.date) }
             .mapValues { list in list.reduce(0) { sum, tx in sum + convert(tx.amount, from: tx.currency, on: tx.date) } }
 
-        let monthNames = ["январь","февраль","март","апрель","май","июнь",
-                          "июль","август","сентябрь","октябрь","ноябрь","декабрь"]
+        let monthNames: [String] = {
+            var f = DateFormatter(); f.locale = Locale.current; return f.monthSymbols
+        }()
         deltaByMonth = (1...12).map { month in
             MonthlyDeltaValue(
                 monthIndex: month,

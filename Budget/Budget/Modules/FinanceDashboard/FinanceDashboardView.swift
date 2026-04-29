@@ -60,8 +60,11 @@ struct FinanceDashboardView: View {
         return amountInvalid || newCategoryEmpty
     }
 
-    private static let monthNames = ["январь","февраль","март","апрель","май","июнь",
-                                     "июль","август","сентябрь","октябрь","ноябрь","декабрь"]
+    private static let monthNames: [String] = {
+        var f = DateFormatter()
+        f.locale = Locale.current
+        return f.monthSymbols
+    }()
 
     private var selectedMonthDisplayText: String {
         let yearShort = viewModel.selectedYear % 100
@@ -92,16 +95,18 @@ struct FinanceDashboardView: View {
                 HStack {
                     Spacer()
                     SettingsButton { isSettingsPresented = true }
+                        .accessibilityLabel(L10n.a11yOpenSettings)
                 }
                 .padding(.top, 0)
 
                 // Delta header
                 HStack {
-                    Text("Дельта: \(formatAmount(viewModel.globalDelta, withSign: true))")
+                    Text("\(L10n.delta): \(formatAmount(viewModel.globalDelta, withSign: true))")
                         .font(.playfairDisplay(31, weight: .bold))
                         .minimumScaleFactor(0.65)
                         .lineLimit(1)
                         .foregroundStyle(Color(.green))
+                        .accessibilityLabel("\(L10n.delta): \(formatAmount(viewModel.globalDelta, withSign: true))")
                     Spacer()
                 }
                 .padding(.top, -8)
@@ -128,6 +133,8 @@ struct FinanceDashboardView: View {
                         }
                     }
                     .buttonStyle(.plain)
+                    .accessibilityLabel(L10n.a11yPickMonth)
+                    .accessibilityValue(selectedMonthDisplayText)
                 }
                 .padding(.horizontal, AppLayout.screenHorizontalPadding)
                 .padding(.bottom, 8)
@@ -155,6 +162,7 @@ struct FinanceDashboardView: View {
                         onDeleteCategory: { categoryToDelete = $0 }
                     )
                     .tag(0)
+                    .accessibilityLabel(L10n.a11yPageSummary)
 
                     TransactionsListView(
                         transactions: viewModel.displayTransactions,
@@ -180,6 +188,7 @@ struct FinanceDashboardView: View {
                         }
                     )
                     .tag(1)
+                    .accessibilityLabel(L10n.a11yPageTransactions)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .frame(maxHeight: .infinity)
@@ -187,7 +196,11 @@ struct FinanceDashboardView: View {
                 // Page indicator
                 HStack(spacing: 8) {
                     Circle().fill(selectedPage == 0 ? Color(.green) : Color(.gray).opacity(0.4)).frame(width: 10, height: 10)
+                        .accessibilityLabel(L10n.a11yPageSummary)
+                        .accessibilityAddTraits(selectedPage == 0 ? .isSelected : [])
                     Circle().fill(selectedPage == 1 ? Color(.green) : Color(.gray).opacity(0.4)).frame(width: 10, height: 10)
+                        .accessibilityLabel(L10n.a11yPageTransactions)
+                        .accessibilityAddTraits(selectedPage == 1 ? .isSelected : [])
                 }
                 .padding(.vertical, 8)
 
@@ -208,6 +221,7 @@ struct FinanceDashboardView: View {
                                 .foregroundStyle(.white)
                         }
                 }
+                .accessibilityLabel(L10n.a11yAddTransaction)
                 .padding(.horizontal, AppLayout.screenHorizontalPadding)
                 .padding(.bottom, 4)
             }
@@ -262,17 +276,17 @@ struct FinanceDashboardView: View {
             guard !isPresented else { return }
             viewModel.onSettingsDismissed()
         }
-        .alert("Удаление категории", isPresented: Binding(
+        .alert(L10n.delete, isPresented: Binding(
             get: { categoryToDelete != nil },
             set: { if !$0 { categoryToDelete = nil } }
         )) {
-            Button("Отмена", role: .cancel) { categoryToDelete = nil }
-            Button("Да", role: .destructive) {
+            Button(L10n.cancel, role: .cancel) { categoryToDelete = nil }
+            Button(L10n.delete, role: .destructive) {
                 if let name = categoryToDelete { viewModel.deleteCategory(name: name) }
                 categoryToDelete = nil
             }
         } message: {
-            Text("Вы уверены, что хотите удалить категорию?")
+            Text(L10n.confirmDeleteCategory)
         }
         .onDisappear {
             isOverlayPresented = false
@@ -317,7 +331,7 @@ private extension FinanceDashboardView {
     var monthPickerOverlay: some View {
         VStack(spacing: 12) {
             HStack(spacing: 12) {
-                Picker("Месяц", selection: $monthPickerDraftMonth) {
+                Picker(L10n.month, selection: $monthPickerDraftMonth) {
                     ForEach(availableMonths(for: monthPickerDraftYear), id: \.self) { month in
                         Text(Self.monthNames[month - 1]).tag(month)
                     }
@@ -326,7 +340,7 @@ private extension FinanceDashboardView {
                 .labelsHidden()
                 .frame(maxWidth: .infinity)
 
-                Picker("Год", selection: $monthPickerDraftYear) {
+                Picker(L10n.year, selection: $monthPickerDraftYear) {
                     ForEach(availableYears, id: \.self) { Text(String($0)).tag($0) }
                 }
                 .pickerStyle(.wheel)
@@ -358,7 +372,7 @@ private extension FinanceDashboardView {
     var planEditorOverlay: some View {
         if let categoryName = planEditingCategoryName {
             VStack(spacing: 12) {
-                Text("План: \(categoryName)")
+                Text(L10n.planCategory(categoryName))
                     .font(.playfairDisplay(24, weight: .semibold))
                     .foregroundStyle(.black)
 
@@ -395,11 +409,11 @@ private extension FinanceDashboardView {
     var categoryNameEditorOverlay: some View {
         if let oldName = categoryNameEditingCategory {
             VStack(spacing: 12) {
-                Text("Название категории")
+                Text(L10n.categoryName)
                     .font(.playfairDisplay(24, weight: .semibold))
                     .foregroundStyle(.black)
 
-                TextField("Название", text: $categoryNameEditingDraft)
+                TextField(L10n.name, text: $categoryNameEditingDraft)
                     .font(.playfairDisplay(20, weight: .semibold))
                     .padding(.horizontal, 14)
                     .frame(height: 56)
@@ -456,9 +470,9 @@ private extension FinanceDashboardView {
 
         } else if let editing = categoryEditingTransaction {
             VStack(spacing: 12) {
-                Picker("Категория", selection: $categoryEditingDraft) {
+                Picker(L10n.category, selection: $categoryEditingDraft) {
                     ForEach(categoryPickerOptions, id: \.self) { option in
-                        Text(option == newCategoryKey ? "Новая" : option).tag(option)
+                        Text(option == newCategoryKey ? L10n.newCategory : option).tag(option)
                     }
                 }
                 .pickerStyle(.wheel)
@@ -466,7 +480,7 @@ private extension FinanceDashboardView {
                 .frame(height: 180)
 
                 if categoryEditingDraft == newCategoryKey {
-                    TextField("Название категории", text: $newCategoryDraft)
+                    TextField(L10n.categoryName, text: $newCategoryDraft)
                         .font(.playfairDisplay(20, weight: .semibold))
                         .foregroundStyle(.black)
                         .padding(.horizontal, 12)
@@ -508,7 +522,7 @@ private extension FinanceDashboardView {
 
         } else if let editing = amountEditingTransaction {
             VStack(spacing: 12) {
-                Text("Введите значение")
+                Text(L10n.enterValue)
                     .font(.playfairDisplay(24, weight: .semibold))
                     .foregroundStyle(.black)
 
@@ -552,7 +566,7 @@ private extension FinanceDashboardView {
                 .ignoresSafeArea(edges: .bottom)
 
             VStack(alignment: .leading, spacing: 12) {
-                Text("Сумма").font(.playfairDisplay(20, weight: .semibold)).foregroundStyle(.white)
+                Text(L10n.sum).font(.playfairDisplay(20, weight: .semibold)).foregroundStyle(.white)
 
                 HStack(spacing: 10) {
                     TextField("0", text: Binding(
@@ -576,9 +590,9 @@ private extension FinanceDashboardView {
                 .background(.white)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
 
-                Text("Категория").font(.playfairDisplay(20, weight: .semibold)).foregroundStyle(.white)
+                Text(L10n.category).font(.playfairDisplay(20, weight: .semibold)).foregroundStyle(.white)
 
-                fieldButton(value: transactionDraft.category == newCategoryKey ? "Новая" : transactionDraft.category) {
+                fieldButton(value: transactionDraft.category == newCategoryKey ? L10n.newCategory : transactionDraft.category) {
                     isAmountInputFocused = false
                     isNewCategoryInputFocused = false
                     if viewModel.categoryNames.isEmpty {
@@ -591,7 +605,7 @@ private extension FinanceDashboardView {
                 }
 
                 if transactionDraft.category == newCategoryKey {
-                    TextField("Название категории", text: $newCategoryDraft)
+                    TextField(L10n.categoryName, text: $newCategoryDraft)
                         .font(.playfairDisplay(20, weight: .semibold))
                         .foregroundStyle(.black)
                         .padding(.horizontal, 14)
@@ -603,9 +617,9 @@ private extension FinanceDashboardView {
                 }
 
                 if activePicker == .category {
-                    Picker("Категория", selection: $transactionDraft.category) {
+                    Picker(L10n.category, selection: $transactionDraft.category) {
                         ForEach(categoryPickerOptions, id: \.self) { option in
-                            Text(option == newCategoryKey ? "Новая" : option).tag(option)
+                            Text(option == newCategoryKey ? L10n.newCategory : option).tag(option)
                         }
                     }
                     .pickerStyle(.wheel)
@@ -625,7 +639,7 @@ private extension FinanceDashboardView {
 
                 HStack(spacing: 12) {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Дата").font(.playfairDisplay(20, weight: .semibold)).foregroundStyle(.white)
+                        Text(L10n.date).font(.playfairDisplay(20, weight: .semibold)).foregroundStyle(.white)
                         fieldButton(value: formatDate(transactionDraft.date)) {
                             isAmountInputFocused = false
                             withAnimation(.easeInOut(duration: 0.2)) {
@@ -634,7 +648,7 @@ private extension FinanceDashboardView {
                         }
                     }
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Валюта").font(.playfairDisplay(20, weight: .semibold)).foregroundStyle(.white)
+                        Text(L10n.currency).font(.playfairDisplay(20, weight: .semibold)).foregroundStyle(.white)
                         fieldButton(value: AppCurrency.displayName(for: transactionDraft.currency)) {
                             isAmountInputFocused = false
                             withAnimation(.easeInOut(duration: 0.2)) {
@@ -656,7 +670,7 @@ private extension FinanceDashboardView {
                 }
 
                 if activePicker == .currency {
-                    Picker("Валюта", selection: $transactionDraft.currency) {
+                    Picker(L10n.currency, selection: $transactionDraft.currency) {
                         ForEach(AppCurrency.mainCurrencies) { currency in
                             Text(currency.displayName).tag(currency.rawValue)
                         }
@@ -669,7 +683,7 @@ private extension FinanceDashboardView {
                 }
 
                 HStack(spacing: 12) {
-                    Button("Отмена") {
+                    Button(L10n.cancel) {
                         withAnimation(.easeInOut(duration: 0.24)) { isAddTransactionPresented = false }
                         activePicker = nil
                         isAmountInputFocused = false
@@ -683,7 +697,7 @@ private extension FinanceDashboardView {
                     .background(Color(.systemGray5))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
 
-                    Button("ОК") { commitAddTransaction() }
+                    Button(L10n.ok) { commitAddTransaction() }
                         .font(.playfairDisplay(18, weight: .semibold))
                         .foregroundStyle(Color(.green))
                         .frame(maxWidth: .infinity)
@@ -775,9 +789,7 @@ private extension FinanceDashboardView {
     }
 
     private func formatDate(_ date: Date) -> String {
-        let f = DateFormatter()
-        f.dateFormat = "dd.MM.yyyy"
-        return f.string(from: date)
+        AppDateFormat.display.string(from: date)
     }
 
     private func normalizedAmountInput(_ text: String) -> String { AppMoney.normalizeInput(text) }
@@ -824,7 +836,7 @@ private extension FinanceDashboardView {
 
     private func overlayButtons(onCancel: @escaping () -> Void, onOK: @escaping () -> Void, okDisabled: Bool = false) -> some View {
         HStack(spacing: 12) {
-            Button("Отмена", action: onCancel)
+            Button(L10n.cancel, action: onCancel)
                 .font(.playfairDisplay(20, weight: .semibold))
                 .foregroundStyle(.black)
                 .frame(maxWidth: .infinity)
@@ -832,7 +844,7 @@ private extension FinanceDashboardView {
                 .background(Color(.systemGray5))
                 .clipShape(RoundedRectangle(cornerRadius: 10))
 
-            Button("ОК", action: onOK)
+            Button(L10n.ok, action: onOK)
                 .font(.playfairDisplay(20, weight: .semibold))
                 .foregroundStyle(Color(.green))
                 .frame(maxWidth: .infinity)
@@ -858,9 +870,9 @@ private struct TransactionsListView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 12) {
-                Text("Категория").font(.playfairDisplay(20)).frame(maxWidth: .infinity, alignment: .leading)
-                Text("Дата")    .font(.playfairDisplay(20)).frame(width: 110, alignment: .leading)
-                Text("Сумма")   .font(.playfairDisplay(20)).frame(width: 110, alignment: .leading)
+                Text(L10n.category).font(.playfairDisplay(20)).frame(maxWidth: .infinity, alignment: .leading)
+                Text(L10n.date)    .font(.playfairDisplay(20)).frame(width: 110, alignment: .leading)
+                Text(L10n.sum)     .font(.playfairDisplay(20)).frame(width: 110, alignment: .leading)
             }
             .padding(.horizontal, AppLayout.screenHorizontalPadding)
             .padding(.vertical, 8)
@@ -898,7 +910,7 @@ private struct TransactionsListView: View {
                     .listRowBackground(Color(.beige))
                     .listRowSeparator(.hidden)
                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                        Button(role: .destructive) { onDelete(tx) } label: { Text("Удалить") }
+                        Button(role: .destructive) { onDelete(tx) } label: { Text(L10n.delete) }
                     }
                 }
             }
@@ -909,7 +921,7 @@ private struct TransactionsListView: View {
     }
 
     private func formatDate(_ date: Date) -> String {
-        let f = DateFormatter(); f.dateFormat = "dd.MM.yyyy"; return f.string(from: date)
+        AppDateFormat.display.string(from: date)
     }
 }
 

@@ -33,7 +33,7 @@ struct AppSettingsView: View {
                         HStack(spacing: 6) {
                             Image(systemName: "chevron.left")
                                 .font(.system(size: 24, weight: .medium))
-                            Text("Назад")
+                            Text(L10n.back)
                                 .font(.playfairDisplay(24, weight: .semibold))
                         }
                         .foregroundStyle(Color(.green))
@@ -46,7 +46,7 @@ struct AppSettingsView: View {
                 .padding(.top, 4)
 
                 HStack {
-                    Text("Настройки")
+                    Text(L10n.settings)
                         .font(.playfairDisplay(40, weight: .semibold))
                         .foregroundStyle(Color(.green))
                     Spacer()
@@ -56,7 +56,7 @@ struct AppSettingsView: View {
 
                 VStack(spacing: 18) {
                     settingsRow(
-                        title: "Валюта",
+                        title: L10n.currency,
                         subtitle: AppCurrency.displayName(for: selectedCurrency),
                         action: {
                             currencyDraft = selectedCurrency
@@ -66,9 +66,9 @@ struct AppSettingsView: View {
                         }
                     )
 
-                    settingsRow(title: "Поделиться", subtitle: nil, action: nil)
-                    settingsRow(title: "Оценить\nприложение", subtitle: nil, action: nil)
-                    settingsRow(title: "Купить премиум", subtitle: nil, action: nil)
+                    settingsRow(title: L10n.share,      subtitle: nil, action: nil)
+                    settingsRow(title: L10n.rateApp,    subtitle: nil, action: nil)
+                    settingsRow(title: L10n.buyPremium, subtitle: nil, action: nil)
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 26)
@@ -82,7 +82,7 @@ struct AppSettingsView: View {
                     .onTapGesture { closeCurrencyPicker() }
 
                 VStack(spacing: 12) {
-                    Picker("Валюта", selection: $currencyDraft) {
+                    Picker(L10n.currency, selection: $currencyDraft) {
                         ForEach(AppCurrency.mainCurrencies) { currency in
                             Text("\(currency.displayName) (\(currency.rawValue))").tag(currency.rawValue)
                         }
@@ -92,7 +92,7 @@ struct AppSettingsView: View {
                     .frame(height: 180)
 
                     HStack(spacing: 12) {
-                        Button("Отмена") { closeCurrencyPicker() }
+                        Button(L10n.cancel) { closeCurrencyPicker() }
                             .font(.playfairDisplay(20, weight: .semibold))
                             .foregroundStyle(.black)
                             .frame(maxWidth: .infinity)
@@ -100,7 +100,7 @@ struct AppSettingsView: View {
                             .background(Color(.systemGray5))
                             .clipShape(RoundedRectangle(cornerRadius: 10))
 
-                        Button("ОК") {
+                        Button(L10n.ok) {
                             selectedCurrency = currencyDraft
                             AppSettingsCurrency.saveBaseCurrencyCode(selectedCurrency)
                             closeCurrencyPicker()

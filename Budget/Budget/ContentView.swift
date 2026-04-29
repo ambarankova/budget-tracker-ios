@@ -73,10 +73,10 @@ private struct BottomMenuBar: View {
 
     var body: some View {
         HStack(spacing: 6) {
-            tab(.income,    symbol: "arrow.up",                    title: "Доход")
-            tab(.expense,   symbol: "creditcard",                  title: "Расход")
-            tab(.analytics, symbol: "chart.bar.fill",              title: "Аналитика")
-            tab(.goals,     symbol: "checkmark.rectangle.stack",   title: "Цели")
+            tab(.income,    symbol: "arrow.up",                    title: L10n.income)
+            tab(.expense,   symbol: "creditcard",                  title: L10n.expense)
+            tab(.analytics, symbol: "chart.bar.fill",              title: L10n.analytics)
+            tab(.goals,     symbol: "checkmark.rectangle.stack",   title: L10n.goals)
         }
         .padding(.top, 8)
         .padding(.bottom, 6)
@@ -98,6 +98,8 @@ private struct BottomMenuBar: View {
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(title)
+        .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
     }
 }
 

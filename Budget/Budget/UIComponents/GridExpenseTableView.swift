@@ -32,7 +32,7 @@ struct TotalTableView: View {
                         Button(role: .destructive) {
                             onDeleteCategory?(category.name)
                         } label: {
-                            Text("Удалить")
+                            Text(L10n.delete)
                         }
                     }
                 }
@@ -44,7 +44,7 @@ struct TotalTableView: View {
 
             Divider().overlay(Color(.gray).opacity(0.3))
 
-            row(name: "Итого", plan: totalPlan, fact: totalFact, isTotal: true)
+            row(name: L10n.total, plan: totalPlan, fact: totalFact, isTotal: true)
                 .padding(.horizontal, AppLayout.screenHorizontalPadding)
                 .padding(.vertical, 8)
                 .padding(.bottom, 10)
@@ -53,9 +53,9 @@ struct TotalTableView: View {
 
     private var tableHeader: some View {
         HStack(spacing: 12) {
-            Text("Категория").font(.playfairDisplay(20)).frame(maxWidth: .infinity, alignment: .leading)
-            Text("План")    .font(.playfairDisplay(20)).frame(width: 110, alignment: .leading)
-            Text("Факт")    .font(.playfairDisplay(20)).frame(width: 110, alignment: .leading)
+            Text(L10n.category).font(.playfairDisplay(20)).frame(maxWidth: .infinity, alignment: .leading)
+            Text(L10n.plan)    .font(.playfairDisplay(20)).frame(width: 110, alignment: .leading)
+            Text(L10n.fact)    .font(.playfairDisplay(20)).frame(width: 110, alignment: .leading)
         }
     }
 

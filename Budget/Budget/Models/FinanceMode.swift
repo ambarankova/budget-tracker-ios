@@ -6,8 +6,8 @@ enum FinanceMode: Hashable {
 
     var screenTitle: String {
         switch self {
-        case .expense: "Расходы"
-        case .income:  "Доходы"
+        case .expense: L10n.expense
+        case .income:  L10n.income
         }
     }
 

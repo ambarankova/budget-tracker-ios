@@ -40,11 +40,15 @@ actor CBRCurrencyRateService: CurrencyRateService {
         return filtered
     }
 
-    private static func cbrDateString(_ date: Date) -> String {
+    private static let cbrDateFormatter: DateFormatter = {
         let f = DateFormatter()
         f.locale = Locale(identifier: "en_US_POSIX")
         f.dateFormat = "dd/MM/yyyy"
-        return f.string(from: date)
+        return f
+    }()
+
+    private static func cbrDateString(_ date: Date) -> String {
+        cbrDateFormatter.string(from: date)
     }
 }
 
