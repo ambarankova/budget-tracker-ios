@@ -63,7 +63,7 @@ enum AppSettingsCurrency {
     private static let currencyStorageKey = "budget.settings.currency.v1"
 
     static func loadBaseCurrencyCode() -> String {
-        UserDefaults.standard.string(forKey: currencyStorageKey) ?? AppCurrency.RUB.rawValue
+        UserDefaults.standard.string(forKey: currencyStorageKey) ?? AppCurrency.USD.rawValue
     }
 
     static func saveBaseCurrencyCode(_ code: String) {

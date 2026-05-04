@@ -110,6 +110,8 @@ final class AnalyticsViewModel: ObservableObject {
     // MARK: - Lifecycle
 
     func onAppear() {
+        let updated = AppCurrency.normalize(AppSettingsCurrency.loadBaseCurrencyCode())
+        if updated != baseCurrencyCode { baseCurrencyCode = updated }
         selectedYear = availableYears.first ?? selectedYear
         Task {
             await refreshRates()

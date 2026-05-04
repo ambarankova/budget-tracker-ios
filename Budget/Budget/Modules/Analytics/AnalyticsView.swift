@@ -65,9 +65,21 @@ struct AnalyticsView: View {
                         HStack(alignment: .top, spacing: 12) {
                             categoryColumn(minHeight: max(0, geo.size.height + 18))
                             
-                            ScrollView(.horizontal, showsIndicators: true) {
-                                monthsAndPlanColumns(minHeight: max(0, geo.size.height + 18))
-                                    .padding(.trailing, AppLayout.screenHorizontalPadding)
+                            ScrollViewReader { proxy in
+                                ScrollView(.horizontal, showsIndicators: true) {
+                                    monthsAndPlanColumns(minHeight: max(0, geo.size.height + 18))
+                                        .padding(.trailing, AppLayout.screenHorizontalPadding)
+                                }
+                                .onAppear {
+                                    DispatchQueue.main.async {
+                                        proxy.scrollTo("analyticsMonth_\(scrollTargetMonth)", anchor: .leading)
+                                    }
+                                }
+                                .onChange(of: viewModel.selectedYear) { _ in
+                                    withAnimation(.easeInOut(duration: 0.3)) {
+                                        proxy.scrollTo("analyticsMonth_\(scrollTargetMonth)", anchor: .leading)
+                                    }
+                                }
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -194,8 +206,21 @@ private extension AnalyticsView {
     @ViewBuilder
     func monthsAndPlanColumns(minHeight: CGFloat) -> some View {
         VStack(spacing: 0) {
-            monthRow(values: monthSymbols + [L10n.total], planText: L10n.plan, bold: false, onPlanTap: nil)
-                .padding(.vertical, 8)
+            HStack(spacing: 12) {
+                ForEach(Array(monthSymbols.enumerated()), id: \.offset) { index, symbol in
+                    Text(symbol)
+                        .font(.playfairDisplay(20))
+                        .frame(width: 110, alignment: .leading)
+                        .id("analyticsMonth_\(index + 1)")
+                }
+                Text(L10n.total)
+                    .font(.playfairDisplay(20))
+                    .frame(width: 110, alignment: .leading)
+                Text(L10n.plan)
+                    .font(.playfairDisplay(20))
+                    .frame(width: 84, alignment: .leading)
+            }
+            .padding(.vertical, 8)
             Divider().overlay(Color(.gray).opacity(0.3))
             
             ForEach(viewModel.categoryRows) { row in
@@ -243,7 +268,13 @@ private extension AnalyticsView {
     }
     
     // MARK: - Private helpers
-    
+
+    private var scrollTargetMonth: Int {
+        let currentYear = Calendar.current.component(.year, from: Date())
+        guard viewModel.selectedYear == currentYear else { return 12 }
+        return Calendar.current.component(.month, from: Date())
+    }
+
     func openChart(_ mode: ChartMode) {
         closeAllPopups()
         yearChartRoute = mode

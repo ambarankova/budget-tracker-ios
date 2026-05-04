@@ -150,6 +150,8 @@ final class FinanceDashboardViewModel: ObservableObject {
     // MARK: - Lifecycle
 
     func onAppear() {
+        let updated = AppCurrency.normalize(AppSettingsCurrency.loadBaseCurrencyCode())
+        if updated != baseCurrencyCode { baseCurrencyCode = updated }
         loadTransactions()
         loadCategories()
         Task { await refreshRatesForSelectedMonth() }

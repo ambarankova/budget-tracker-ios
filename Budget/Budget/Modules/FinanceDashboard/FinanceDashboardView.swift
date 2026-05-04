@@ -647,7 +647,7 @@ private extension FinanceDashboardView {
 
                 if activePicker == .currency {
                     Picker(L10n.currency, selection: $transactionDraft.currency) {
-                        ForEach(AppCurrency.mainCurrencies) { currency in
+                        ForEach(sortedCurrencies(preferred: transactionDraft.currency)) { currency in
                             Text(currency.displayName).tag(currency.rawValue)
                         }
                     }
@@ -757,6 +757,14 @@ private extension FinanceDashboardView {
 
     private func formatDate(_ date: Date) -> String {
         AppDateFormat.display.string(from: date)
+    }
+
+    private func sortedCurrencies(preferred: String) -> [AppCurrency] {
+        var list = AppCurrency.mainCurrencies
+        if let idx = list.firstIndex(where: { $0.rawValue == preferred }), idx != 0 {
+            list.insert(list.remove(at: idx), at: 0)
+        }
+        return list
     }
 
     // MARK: - Reusable sub-views
