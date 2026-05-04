@@ -66,3 +66,23 @@ targets:
             echo "warning: SwiftGen not installed, download from https://github.com/SwiftGen/SwiftGen"
           fi
     postbuildScripts: []
+
+  BudgetTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: BudgetTests
+      - path: Budget/Resources/Publics.swift
+      - path: Budget/Models/Transaction.swift
+      - path: Budget/Models/Goal.swift
+      - path: Budget/Generated/Strings.swift
+      - path: Budget/Models/FinanceMode.swift
+      - path: Budget/Services/CurrencyConverter.swift
+      - path: Budget/Services/TransactionRepository.swift
+      - path: Budget/Services/GoalRepository.swift
+      - path: Budget/Services/CurrencyRateService.swift
+      - path: Budget/Services/MockRepositories.swift
+    settings:
+      base:
+        DEVELOPMENT_TEAM: G56Y45S8LJ
+        GENERATE_INFOPLIST_FILE: YES
