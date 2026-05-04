@@ -77,6 +77,50 @@ final class FinanceDashboardViewModel: ObservableObject {
 
     var categoryNames: [String] { categories.map(\.name) }
 
+    func formattedAmount(_ cents: Int, withSign: Bool = false) -> String {
+        let absStr = AppMoney.formatCentsForDisplay(abs(cents), currencySymbol: baseCurrencySymbol)
+        if withSign {
+            return "\(cents >= 0 ? "+" : "-")\(absStr)"
+        }
+        return "\(cents < 0 ? "-" : "")\(absStr)"
+    }
+
+    // MARK: - Display helpers
+
+    private static let monthNames: [String] = {
+        var f = DateFormatter()
+        f.locale = Locale.current
+        return f.monthSymbols
+    }()
+
+    var selectedMonthDisplayText: String {
+        let yearShort = selectedYear % 100
+        return "\(Self.monthNames[selectedMonth - 1]) \(yearShort)"
+    }
+
+    var availableYears: [Int] {
+        Array(2019...Calendar.current.component(.year, from: Date()))
+    }
+
+    func availableMonths(for year: Int) -> [Int] {
+        let now = Date()
+        let currentYear  = Calendar.current.component(.year,  from: now)
+        let currentMonth = Calendar.current.component(.month, from: now)
+        if year == 2019 { return [12] }
+        if year == currentYear { return Array(1...currentMonth) }
+        return Array(1...12)
+    }
+
+    func monthName(for month: Int) -> String { Self.monthNames[month - 1] }
+
+    func normalizedAmountInput(_ text: String) -> String { AppMoney.normalizeInput(text) }
+
+    func formattedAmountInput(_ text: String) -> String {
+        let normalized = AppMoney.normalizeInput(text)
+        guard let cents = AppMoney.parseToCents(normalized) else { return normalized }
+        return AppMoney.formatCentsForInput(cents)
+    }
+
     var currentMonthTransactions: [Transaction] {
         let cal = Calendar.current
         return transactions
@@ -91,8 +135,8 @@ final class FinanceDashboardViewModel: ObservableObject {
 
     init(
         mode: FinanceMode,
-        transactionRepo: TransactionRepository = UserDefaultsTransactionRepository.shared,
-        currencyService: CurrencyRateService = CBRCurrencyRateService.shared
+        transactionRepo: TransactionRepository,
+        currencyService: CurrencyRateService
     ) {
         self.mode = mode
         self.transactionRepo = transactionRepo

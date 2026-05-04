@@ -60,30 +60,6 @@ struct FinanceDashboardView: View {
         return amountInvalid || newCategoryEmpty
     }
 
-    private static let monthNames: [String] = {
-        var f = DateFormatter()
-        f.locale = Locale.current
-        return f.monthSymbols
-    }()
-
-    private var selectedMonthDisplayText: String {
-        let yearShort = viewModel.selectedYear % 100
-        return "\(Self.monthNames[viewModel.selectedMonth - 1]) \(yearShort)"
-    }
-
-    private var availableYears: [Int] {
-        Array(2019...Calendar.current.component(.year, from: Date()))
-    }
-
-    private func availableMonths(for year: Int) -> [Int] {
-        let now = Date()
-        let currentYear  = Calendar.current.component(.year,  from: now)
-        let currentMonth = Calendar.current.component(.month, from: now)
-        if year == 2019 { return [12] }
-        if year == currentYear { return Array(1...currentMonth) }
-        return Array(1...12)
-    }
-
     // MARK: - Body
 
     var body: some View {
@@ -101,12 +77,12 @@ struct FinanceDashboardView: View {
 
                 // Delta header
                 HStack {
-                    Text("\(L10n.delta): \(formatAmount(viewModel.globalDelta, withSign: true))")
+                    Text("\(L10n.delta): \(viewModel.formattedAmount(viewModel.globalDelta, withSign: true))")
                         .font(.playfairDisplay(31, weight: .bold))
                         .minimumScaleFactor(0.65)
                         .lineLimit(1)
                         .foregroundStyle(Color(.green))
-                        .accessibilityLabel("\(L10n.delta): \(formatAmount(viewModel.globalDelta, withSign: true))")
+                        .accessibilityLabel("\(L10n.delta): \(viewModel.formattedAmount(viewModel.globalDelta, withSign: true))")
                     Spacer()
                 }
                 .padding(.top, -8)
@@ -124,7 +100,7 @@ struct FinanceDashboardView: View {
                         withAnimation(.easeInOut(duration: 0.22)) { isMonthPickerPresented = true }
                     } label: {
                         HStack(spacing: 6) {
-                            Text(selectedMonthDisplayText)
+                            Text(viewModel.selectedMonthDisplayText)
                                 .font(.playfairDisplay(28, weight: .semibold))
                                 .foregroundStyle(Color(.green))
                             Image(systemName: "chevron.right")
@@ -134,7 +110,7 @@ struct FinanceDashboardView: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(L10n.a11yPickMonth)
-                    .accessibilityValue(selectedMonthDisplayText)
+                    .accessibilityValue(viewModel.selectedMonthDisplayText)
                 }
                 .padding(.horizontal, AppLayout.screenHorizontalPadding)
                 .padding(.bottom, 8)
@@ -332,8 +308,8 @@ private extension FinanceDashboardView {
         VStack(spacing: 12) {
             HStack(spacing: 12) {
                 Picker(L10n.month, selection: $monthPickerDraftMonth) {
-                    ForEach(availableMonths(for: monthPickerDraftYear), id: \.self) { month in
-                        Text(Self.monthNames[month - 1]).tag(month)
+                    ForEach(viewModel.availableMonths(for: monthPickerDraftYear), id: \.self) { month in
+                        Text(viewModel.monthName(for: month)).tag(month)
                     }
                 }
                 .pickerStyle(.wheel)
@@ -341,7 +317,7 @@ private extension FinanceDashboardView {
                 .frame(maxWidth: .infinity)
 
                 Picker(L10n.year, selection: $monthPickerDraftYear) {
-                    ForEach(availableYears, id: \.self) { Text(String($0)).tag($0) }
+                    ForEach(viewModel.availableYears, id: \.self) { Text(String($0)).tag($0) }
                 }
                 .pickerStyle(.wheel)
                 .labelsHidden()
@@ -349,7 +325,7 @@ private extension FinanceDashboardView {
             }
             .frame(height: 180)
             .onChange(of: monthPickerDraftYear) { year in
-                let months = availableMonths(for: year)
+                let months = viewModel.availableMonths(for: year)
                 if !months.contains(monthPickerDraftMonth) {
                     monthPickerDraftMonth = months.first ?? 1
                 }
@@ -377,8 +353,8 @@ private extension FinanceDashboardView {
                     .foregroundStyle(.black)
 
                 amountTextField(text: Binding(
-                    get: { formattedAmountInput(planEditingDraft) },
-                    set: { planEditingDraft = normalizedAmountInput($0) }
+                    get: { viewModel.formattedAmountInput(planEditingDraft) },
+                    set: { planEditingDraft = viewModel.normalizedAmountInput($0) }
                 ), isFocused: $isPlanEditingFocused)
 
                 overlayButtons(
@@ -527,8 +503,8 @@ private extension FinanceDashboardView {
                     .foregroundStyle(.black)
 
                 amountTextField(text: Binding(
-                    get: { formattedAmountInput(amountEditingDraft) },
-                    set: { amountEditingDraft = normalizedAmountInput($0) }
+                    get: { viewModel.formattedAmountInput(amountEditingDraft) },
+                    set: { amountEditingDraft = viewModel.normalizedAmountInput($0) }
                 ), isFocused: $isAmountEditingFocused)
 
                 overlayButtons(
@@ -570,8 +546,8 @@ private extension FinanceDashboardView {
 
                 HStack(spacing: 10) {
                     TextField("0", text: Binding(
-                        get: { formattedAmountInput(transactionDraft.amount) },
-                        set: { transactionDraft.amount = normalizedAmountInput($0) }
+                        get: { viewModel.formattedAmountInput(transactionDraft.amount) },
+                        set: { transactionDraft.amount = viewModel.normalizedAmountInput($0) }
                     ))
                     .focused($isAmountInputFocused)
                     .font(.playfairDisplay(20, weight: .semibold))
@@ -779,25 +755,8 @@ private extension FinanceDashboardView {
         viewModel.categoryNames + [newCategoryKey]
     }
 
-    private func formatAmount(_ value: Int, withSign: Bool = false) -> String {
-        let absStr = AppMoney.formatCentsForInput(abs(value))
-        let symbol = viewModel.baseCurrencySymbol
-        if withSign {
-            return "\(value >= 0 ? "+" : "-")\(absStr) \(symbol)"
-        }
-        return "\(value < 0 ? "-" : "")\(absStr) \(symbol)"
-    }
-
     private func formatDate(_ date: Date) -> String {
         AppDateFormat.display.string(from: date)
-    }
-
-    private func normalizedAmountInput(_ text: String) -> String { AppMoney.normalizeInput(text) }
-
-    private func formattedAmountInput(_ text: String) -> String {
-        let normalized = AppMoney.normalizeInput(text)
-        guard let cents = AppMoney.parseToCents(normalized) else { return normalized }
-        return AppMoney.formatCentsForInput(cents)
     }
 
     // MARK: - Reusable sub-views
@@ -941,21 +900,15 @@ private struct TransactionDraft {
 
 private enum AddTransactionPicker { case category, date, currency }
 
-// MARK: - View modifier
-
-private extension View {
-    func overlayCard() -> some View {
-        self
-            .padding(16)
-            .background(.white)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            .padding(.horizontal, 20)
-    }
-}
 
 #Preview {
+    let deps = AppDependencies.preview
     FinanceDashboardView(
-        viewModel: FinanceDashboardViewModel(mode: .expense),
+        viewModel: FinanceDashboardViewModel(
+            mode: .expense,
+            transactionRepo: deps.transactionRepo,
+            currencyService: deps.currencyService
+        ),
         isOverlayPresented: .constant(false),
         isBottomGreenFillPresented: .constant(false)
     )

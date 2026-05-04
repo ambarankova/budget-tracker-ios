@@ -9,6 +9,28 @@ protocol TransactionRepository: AnyObject {
     func saveCategoryPlans(_ plans: [String: Int], for mode: FinanceMode)
 }
 
+// MARK: - Protocol extension (default implementations shared by ALL conformers)
+
+extension TransactionRepository {
+    func hasCategory(_ name: String, for mode: FinanceMode) -> Bool {
+        loadCategoryNames(for: mode).contains(name)
+    }
+
+    func renameCategory(from oldName: String, to newName: String, for mode: FinanceMode) {
+        var names = loadCategoryNames(for: mode)
+        guard let index = names.firstIndex(of: oldName) else { return }
+        names[index] = newName
+
+        var plans = loadCategoryPlans(for: mode)
+        if let plan = plans.removeValue(forKey: oldName) {
+            plans[newName] = plan
+        }
+
+        saveCategoryNames(names, for: mode)
+        saveCategoryPlans(plans, for: mode)
+    }
+}
+
 final class UserDefaultsTransactionRepository: TransactionRepository {
 
     static let shared = UserDefaultsTransactionRepository()

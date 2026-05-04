@@ -1,16 +1,34 @@
 import SwiftUI
 
 struct ContentView: View {
-
-    // ViewModels live here so they survive tab switches.
-    @StateObject private var expenseVM = FinanceDashboardViewModel(mode: .expense)
-    @StateObject private var incomeVM  = FinanceDashboardViewModel(mode: .income)
-    @StateObject private var analyticsVM = AnalyticsViewModel()
-    @StateObject private var goalsVM   = GoalsViewModel()
+    @StateObject private var expenseVM:   FinanceDashboardViewModel
+    @StateObject private var incomeVM:    FinanceDashboardViewModel
+    @StateObject private var analyticsVM: AnalyticsViewModel
+    @StateObject private var goalsVM:     GoalsViewModel
 
     @State private var selectedTab: BottomMenuItem = .expense
     @State private var isAnyOverlayPresented = false
     @State private var isBottomGreenFillPresented = false
+
+    init(dependencies: AppDependencies = .live) {
+        _expenseVM = StateObject(wrappedValue: FinanceDashboardViewModel(
+            mode: .expense,
+            transactionRepo: dependencies.transactionRepo,
+            currencyService: dependencies.currencyService
+        ))
+        _incomeVM = StateObject(wrappedValue: FinanceDashboardViewModel(
+            mode: .income,
+            transactionRepo: dependencies.transactionRepo,
+            currencyService: dependencies.currencyService
+        ))
+        _analyticsVM = StateObject(wrappedValue: AnalyticsViewModel(
+            transactionRepo: dependencies.transactionRepo,
+            currencyService: dependencies.currencyService
+        ))
+        _goalsVM = StateObject(wrappedValue: GoalsViewModel(
+            repo: dependencies.goalRepo
+        ))
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -66,43 +84,6 @@ enum BottomMenuItem {
     case income, expense, analytics, goals
 }
 
-// MARK: - Bottom bar
-
-private struct BottomMenuBar: View {
-    @Binding var selectedTab: BottomMenuItem
-
-    var body: some View {
-        HStack(spacing: 6) {
-            tab(.income,    symbol: "arrow.up",                    title: L10n.income)
-            tab(.expense,   symbol: "creditcard",                  title: L10n.expense)
-            tab(.analytics, symbol: "chart.bar.fill",              title: L10n.analytics)
-            tab(.goals,     symbol: "checkmark.rectangle.stack",   title: L10n.goals)
-        }
-        .padding(.top, 8)
-        .padding(.bottom, 6)
-        .background(Color(.beige))
-    }
-
-    private func tab(_ item: BottomMenuItem, symbol: String, title: String) -> some View {
-        let selected = selectedTab == item
-        return Button { selectedTab = item } label: {
-            VStack(spacing: 6) {
-                Image(systemName: symbol)
-                    .font(.system(size: 21))
-                    .foregroundStyle(selected ? Color(.green) : Color(.gray))
-                Text(title)
-                    .font(.playfairDisplay(13))
-                    .foregroundStyle(selected ? .black : Color(.gray))
-                    .lineLimit(1)
-            }
-            .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(title)
-        .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
-    }
-}
-
 #Preview {
-    ContentView()
+    ContentView(dependencies: .preview)
 }

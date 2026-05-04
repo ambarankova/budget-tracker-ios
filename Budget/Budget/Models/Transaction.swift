@@ -3,7 +3,7 @@ import Foundation
 struct Transaction: Identifiable, Codable {
     let id: UUID
     let category: String
-    let amount: Int     // cents (minor units)
+    let amount: Int     
     let date: Date
     let currency: String
 

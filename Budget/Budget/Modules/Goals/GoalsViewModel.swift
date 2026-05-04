@@ -7,7 +7,7 @@ final class GoalsViewModel: ObservableObject {
 
     @Published private(set) var goals: [Goal] = []
 
-    init(repo: GoalRepository = UserDefaultsGoalRepository.shared) {
+    init(repo: GoalRepository) {
         self.repo = repo
     }
 
@@ -61,6 +61,21 @@ final class GoalsViewModel: ObservableObject {
         goals[gi].history[ei].amount = newAmount
         goals[gi].savedAmount = goals[gi].history.reduce(0) { $0 + $1.amount }
         save()
+    }
+
+    // MARK: - Input formatting
+
+    func normalizedAmountInput(_ text: String) -> String {
+        String(text.filter(\.isWholeNumber))
+    }
+
+    func formattedAmountInput(_ text: String) -> String {
+        guard !text.isEmpty, let number = Int(text) else { return text }
+        let f = NumberFormatter()
+        f.numberStyle = .decimal
+        f.groupingSeparator = " "
+        f.maximumFractionDigits = 0
+        return f.string(from: NSNumber(value: number)) ?? text
     }
 
     // MARK: - Private

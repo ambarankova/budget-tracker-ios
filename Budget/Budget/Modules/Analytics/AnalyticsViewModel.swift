@@ -5,8 +5,8 @@ import SwiftUI
 struct CategoryYearSummary: Identifiable {
     let id = UUID()
     let name: String
-    let monthlyFact: [Int: Int]     // month (1-12) → cents in display currency
-    let plan: Int                   // cents in display currency
+    let monthlyFact: [Int: Int]
+    let plan: Int
     var yearTotal: Int { monthlyFact.values.reduce(0, +) }
 }
 
@@ -59,6 +59,34 @@ final class AnalyticsViewModel: ObservableObject {
 
     var totalPlan: Int { categoryRows.reduce(0) { $0 + $1.plan } }
 
+    func formattedAmount(_ cents: Int) -> String {
+        AppMoney.formatCentsForDisplay(cents, currencySymbol: baseCurrencySymbol)
+    }
+
+    func formattedAmountInput(_ text: String) -> String {
+        let normalized = AppMoney.normalizeInput(text)
+        guard let cents = AppMoney.parseToCents(normalized) else { return normalized }
+        return AppMoney.formatCentsForInput(cents)
+    }
+
+    func monthValues(for row: CategoryYearSummary) -> [String] {
+        let months = (1...12).map { month -> String in
+            guard hasDataByMonth[month] == true else { return "—" }
+            return formattedAmount(row.monthlyFact[month] ?? 0)
+        }
+        return months + [formattedAmount(row.yearTotal)]
+    }
+
+    func totalMonthValues() -> [String] {
+        let months = (1...12).map { month -> String in
+            guard hasDataByMonth[month] == true else { return "—" }
+            let total = categoryRows.reduce(0) { $0 + ($1.monthlyFact[month] ?? 0) }
+            return formattedAmount(total)
+        }
+        let grandTotal = categoryRows.reduce(0) { $0 + $1.yearTotal }
+        return months + [formattedAmount(grandTotal)]
+    }
+
     // MARK: - Private
 
     private var ratesByDateKey: [String: [String: Double]] = [:]
@@ -70,8 +98,8 @@ final class AnalyticsViewModel: ObservableObject {
     // MARK: - Init
 
     init(
-        transactionRepo: TransactionRepository = UserDefaultsTransactionRepository.shared,
-        currencyService: CurrencyRateService = CBRCurrencyRateService.shared
+        transactionRepo: TransactionRepository,
+        currencyService: CurrencyRateService
     ) {
         self.transactionRepo = transactionRepo
         self.currencyService = currencyService

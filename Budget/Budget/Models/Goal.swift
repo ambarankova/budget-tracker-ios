@@ -3,7 +3,7 @@ import Foundation
 struct Goal: Identifiable, Codable {
     let id: UUID
     var title: String
-    var targetAmount: Int   // whole units (no cents for goals)
+    var targetAmount: Int   
     var savedAmount: Int
     var history: [GoalHistoryEntry]
 
